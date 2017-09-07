@@ -1,2 +1,3 @@
-# CS1102 Assignment 1
-My and Tina King's code for the first project in CS1102
+# CS1102 Assignment 
+
+Code for all of the projects given to us in CS1102
