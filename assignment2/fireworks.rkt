@@ -18,7 +18,6 @@
 ;;     color is a string
 ;;     fuse is in screen ticks
 ;;     height is in screen ticks
-;;     expl is an integer selecting which explosion to execute
 
 (define fw1 (make-firework 10 10 10 10 "blue" 10 10 1)) ; Firework at (10,10), moving (10, 10) pixels/sec, and is blue, and will explode at after (28 - EXPLSN-LEN) ticks, with the explosive object being 10 pixels and style being expl selector 1
 (define fw2 (make-firework -10 -10 -10 10 "red" 20 100 2)) ; Firework at (-10,-10), moving (-10, 10) pixels/sec, and is red, and will explode at after (20 - EXPLSN-LEN) ticks, with the explosive object being 100 pixels and style being expl selector 2
@@ -32,10 +31,9 @@
 	   (firework-color fw)
 	   (firework-fuse fw)
 	   (firework-height fw)
-	   (firework-expl fw)))
 
 ;; Template rules used:
-;;  - compound: 7 fields
+;;  - compound: 6 fields
 
 ;; ListOfFirework is one of:
 ;;   - empty
@@ -66,11 +64,11 @@
 ;;         the current color, height of firework, and explosion choice of the user
 ;;    lof is a ListOfFireworks
 ;;    color is a string
-;;    height is in screen pixels
-;;    exp is in screen pixels
+;;    height is an integer
+;;    expl is the image function given in by the user
 
-(define ws1 (make-ws empty "blue" 200 9))   ; World State has no fireworks, blue as the color, height as 200, and has explosion choice 9
-(define ws1 (make-ws lof3 "blue" 200 9))   ; World State has three fireworks, blue as the chosen color, height as 200, and has explosion choice 9
+(define ws1 (make-ws empty "blue" 9))   ; World State has no fireworks, blue as the color, height as 9 
+(define ws1 (make-ws lof3 "blue" 5))   ; World State has three fireworks, blue as the chosen color, height as 5 
 
 #; 
 (define (fn-for-ws ws)
@@ -91,7 +89,80 @@
 (define HEIGHT 900)
 (define MTS (empty-scene WIDTH HEIGHT "black"))
 
-(define EXPLSN-LEN 28)
-()
+(define FW-RADIUS 10)
+(define FW-FUSE-MIN 70)
+(define FW-FUSE-MAX 150)
+(define FW-DX-MIN -10)
+(define FW-DX-MAX 10)
+(define FW-DY-MIN 25)
+(define FW-DY-MAX 50)
+
 ;; ===================
 ;; Functions
+
+;; WorldState -> WorldState
+;; Called to begin the fireworks function: Start with (main START1) or (main START2)
+;; No test for the main function
+(define (main ws_init explsn_func)
+  (big-bang ws 
+			(on-tick update-fireworks)
+			(to-draw render)
+			(on-key handle-key)
+			(on-mouse handle-mouse)))
+
+;; WorldState -> WorldStata
+;; Updates the status and positions of all of the active fireworks
+
+; (define (update-fireworks ws) ws)
+
+(define (update-fireworks ws)
+  (make-ws (fn-for-lof (ws-lof ws))
+		   (ws-color ws)
+		   (ws-height ws) 
+		   (ws-expl ws)))
+
+;; Template taken from ws
+
+;; ListOfFirework -> ListOfFirework
+;; Updates the ListOfFirework inputted, and removes any that have have completed their cycle
+
+(check-expect (update-lof empty) empty)
+
+; (define (update-lof lof) lof)
+
+(define (update-lof lof)
+  (cond [(empty? lof) empty]
+		[else
+		  (append (update-firework (first lof)) update-lof (rest lof))]))
+
+;; Firework -> ListOfFirework
+;; Updates the tick cycle in the firework, and if the lifespan of the firework is up, it returns false 
+
+;(define (update-firework fw) fw)
+
+(define (update-firework fw)
+  (cond [(<= (- (firework-fuse fw) 1) 0) empty]
+		[else
+		  (list (make-firework (+ (firework-x fw) (firework-dx fw)) 
+							   (+ (firework-y fw) (fireworks-dy fw)) 
+							   (firework-dx fw) 
+							   (firework-dy fw) 
+							   (firework-color fw) 
+							   (- (firework-fuse fw) 1) 
+							   (firework-height fw)))]))
+
+;; WorldState -> Image
+;; Generates the scene based off of the current world state 
+;!!!
+(define (render ws) ws)
+
+;; WorldState KeyEvent -> WorldState
+;; Modifies the settings of future fireworks based on which key the user presses 
+;!!!
+(define (handle-key ws ke) ws)
+
+;; WorldState MouseEvent -> WorldState
+;; Modifies the current world state based on where the user clicks with the mouse 
+;!!!
+(define (handle-mouse ws x y me) ws)
+
