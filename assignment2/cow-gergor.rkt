@@ -57,12 +57,12 @@
 1 0 10 #"text-box%\0"
 1 0 32 #"(lib \"text-snipclass.ss\" \"xml\")\0"
 1 0 1 6 #"wxloc\0"
-          0 0 76 0 1 #"\0"
+          0 0 78 0 1 #"\0"
 0 75 1 #"\0"
 0 12 90 -1 90 -1 3 -1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 255 255 255 1 -1 0 9
 #"Standard\0"
 0 75 10 #"Monospace\0"
-0 12 90 -1 90 -1 3 -1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 255 255 255 1 -1 2 1
+0 11 90 -1 90 -1 3 -1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 255 255 255 1 -1 2 1
 #"\0"
 0 -1 1 #"\0"
 1 0 -1 -1 -1 -1 -1 -1 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0 0 -1 -1 2 24
@@ -282,7 +282,13 @@
 0 0 -1 -1 19 1 #"\0"
 0 -1 1 #"\0"
 1.0 0 -1 -1 -1 -1 -1 -1 0 0 0 0 1 0 0.0 0.0 0.0 0.0 0.0 0.0 0 0 0 255
-255 255 -1 -1           0 976 0 4 3 85
+255 255 -1 -1 0 1 #"\0"
+0 -1 1 #"\0"
+0 11 -1 -1 -1 -1 -1 -1 0 0 0 0 0 0 1.0 1.0 1.0 1.0 1.0 1.0 0 0 0 0 0 0
+-1 -1 2 1 #"\0"
+0 -1 1 #"\0"
+0 11 -1 -1 -1 -1 -1 -1 0 0 0 0 0 0 1.0 1.0 1.0 1.0 1.0 1.0 0 0 0 0 0 0
+-1 -1           0 979 0 4 3 85
 (
  #";; The first three lines of this file were inserted by DrRacket. The"
  #"y record metadata"
@@ -292,11 +298,11 @@
  #";; about the language level of this file in a form that our tools ca"
  #"n easily process."
 ) 0 0 4 29 1 #"\n"
-0 0 4 3 177
+0 0 4 3 184
 (
- #"#reader(lib \"htdp-intermediate-reader.ss\" \"lang\")((modname cow) "
- #"(read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constru"
- #"ctor repeating-decimal #f #t none #f () #f)))"
+ #"#reader(lib \"htdp-intermediate-reader.ss\" \"lang\")((modname cow-g"
+ #"ergor) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t "
+ #"constructor repeating-decimal #f #t none #f () #f)))"
 ) 0 0 4 29 1 #"\n"
 0 0 24 3 1 #"("
 0 0 15 3 7 #"require"
@@ -340,8 +346,11 @@
  #";; interp. (make-cow (x y theta dx) is a cow with the x coordinate o"
  #"f x, y coordinate of y, with a rotation of"
 ) 0 0 24 29 1 #"\n"
-0 0 17 3 37 #";;         theta and a velocity of dx"
-0 0 24 29 1 #"\n"
+0 0 17 3 93
+(
+ #";;         theta and a velocity of dx. gm? describes whether or not "
+ #"gregor mode is activated "
+) 0 0 24 29 1 #"\n"
 0 0 17 3 56 #";;    (x,y) is the coordinates for the center of the cow"
 0 0 24 29 1 #"\n"
 0 0 17 3 27 #";;    x is in screen pixels"
@@ -351,6 +360,8 @@
 0 0 17 3 22 #";;    theta is degrees"
 0 0 24 29 1 #"\n"
 0 0 17 3 35 #";;    dx is in screen pixels / tick"
+0 0 24 29 1 #"\n"
+0 0 17 3 23 #";;    gm? is a boolean "
 0 0 24 29 1 #"\n"
 0 0 24 29 1 #"\n"
 0 0 24 3 1 #"("
@@ -367,6 +378,8 @@
 0 0 21 3 2 #"10"
 0 0 24 3 1 #" "
 0 0 21 3 2 #"10"
+0 0 24 3 1 #" "
+0 0 14 3 5 #"false"
 0 0 24 3 6 #"))    "
 0 0 17 3 103
 (
@@ -2144,8 +2157,6 @@
 0 0 21 3 2 #"-1"
 0 0 24 3 4 #")]))"
 0 0 24 29 1 #"\n"
-0 0 24 3 6 #"      "
-0 0 24 29 1 #"\n"
 0 0 24 29 1 #"\n"
 0 0 17 3 15 #";; Cow -> Image"
 0 0 24 29 1 #"\n"
@@ -2482,4 +2493,5 @@
 0 0 24 3 1 #" "
 0 0 14 3 1 #"c"
 0 0 24 3 3 #"]))"
+0 0 24 29 1 #"\n"
 0           0
