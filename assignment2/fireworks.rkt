@@ -185,9 +185,78 @@
 
 ;; WorldState KeyEvent -> WorldState
 ;; Modifies the settings of future fireworks based on which key the user presses 
-;; !!!
-(define (handle-key ws ke) ws)
 
+; (define (handle-key ws ke) ws)
+
+(define (handle-key ws ke)
+  (cond [(key=? ke "r") 
+		 (make-firework (ws-lof ws) 
+						"red" 
+						(ws-height ws) 
+						(ws-expl ws))]
+		[(key=? ke "g") 
+		 (make-firework (ws-lof ws) 
+						"green" 
+						(ws-height ws) 
+						(ws-expl ws))]
+		[(key=? ke "b") 
+		 (make-firework (ws-lof ws) 
+						"blue" 
+						(ws-height ws) 
+						(ws-expl ws))]
+		[(key=? ke "w") 
+		 (make-firework (ws-lof ws) 
+						"white" 
+						(ws-height ws) 
+						(ws-expl ws))]
+		[(key=? ke "1") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						1
+						(ws-expl ws))]
+		[(key=? ke "2") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						2
+						(ws-expl ws))]
+		[(key=? ke "3") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						3
+						(ws-expl ws))]
+		[(key=? ke "4") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						4
+						(ws-expl ws))]
+		[(key=? ke "5") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						5
+						(ws-expl ws))]
+		[(key=? ke "6") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						6
+						(ws-expl ws))]
+		[(key=? ke "7") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						7
+						(ws-expl ws))]
+		[(key=? ke "8") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						8
+						(ws-expl ws))]
+		[(key=? ke "9") 
+		 (make-firework (ws-lof ws) 
+						(ws-color ws)
+						9
+						(ws-expl ws))]
+		[else
+		  ws]))
+		
 ;; WorldState MouseEvent -> WorldState
 ;; Modifies the current world state based on where the user clicks with the mouse 
 ;; !!!
