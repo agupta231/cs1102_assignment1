@@ -97,6 +97,8 @@
 (define FW-DY-MIN 25)
 (define FW-DY-MAX 50)
 
+(define EXPLSN-LEN 28)
+
 ;; ===================
 ;; Functions
 
@@ -133,7 +135,7 @@
 (define (update-lof lof)
   (cond [(empty? lof) empty]
 		[else
-		  (append (update-firework (first lof)) update-lof (rest lof))]))
+		  (append (update-firework (first lof)) (update-lof (rest lof)))]))
 
 ;; Firework -> ListOfFirework
 ;; Updates the tick cycle in the firework, and if the lifespan of the firework is up, it returns false 
@@ -153,16 +155,41 @@
 
 ;; WorldState -> Image
 ;; Generates the scene based off of the current world state 
-;!!!
-(define (render ws) ws)
+
+; (define (render ws) ws)
+
+(define (render ws)
+  (gen-img-lof (ws-lof ws) (ws-expl ws)))
+
+;; ListOfFirework -> Image
+;; Iterates through a ListOfFirework, generating the image overlaying on top of the previous images
+
+(define (gen-img-lof lof shape) 
+  (cond [(empty? lof) MTS]
+		[else
+		  (overlay/xy 
+			(select-img (first lof) shape) 
+			(firework-x (first lof)) 
+			(firework-y (first lof)) 
+			(gen-img-lof (rest lof) shape))]))
+
+;; Firework -> Image
+;; Based on the lifespan and the current tick of the firework, render out the correct image for the firework 
+
+; (define (select-img fw shape) MTS)
+
+(define (select-img fw shape)
+  (cond [(<= (- (firework-fuse fw) EXPLSN-LEN) 0) (shape (firework-height fw) (firework-color fw))]
+		[else
+		  (circle FW-RADIUS "solid" (firework-color fw))]))
 
 ;; WorldState KeyEvent -> WorldState
 ;; Modifies the settings of future fireworks based on which key the user presses 
-;!!!
+;; !!!
 (define (handle-key ws ke) ws)
 
 ;; WorldState MouseEvent -> WorldState
 ;; Modifies the current world state based on where the user clicks with the mouse 
-;!!!
+;; !!!
 (define (handle-mouse ws x y me) ws)
 
