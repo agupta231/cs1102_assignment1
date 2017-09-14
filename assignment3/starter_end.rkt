@@ -38,12 +38,13 @@
 ;; Widget Natural -> (listof Widget)
 ;; Finds all subwidgets who have at least one component widget whose quantity in stock
 ;;    is less than the cutoff.
+;; !!! Change purpoise
 
 ;(define (find-widget-hard-make widget cutoff) (list Rings))
 
 (check-expect (find-widget-hard-make Wire 4) (list Wire))
 (check-expect (find-widget-hard-make Cord 4) (list Wire))
-(check-expect (find-widget-hard-make Telephone 20) (list Receiver Buttons Numbers Cord Wire))
+(check-expect (find-widget-hard-make Telephone 4) (list Wire))
 
 (define (find-widget-hard-make widget cutoff)
   (cond [(< (widget-quantity widget) cutoff)
@@ -51,12 +52,47 @@
         [else
          (find-widget-hard-make--low (widget-parts widget) cutoff)]))
 
+
 ;; (listof Widget) Natural -> (listof Widget)
 ;; Searches through a list of widgets and will return a list of all the widgets whose
 ;;    quantity is less than the cutoff 
+;; !!! Change Purpoise
+
+(check-expect (find-widget-hard-make--low empty 3) empty)
+(check-expect (find-widget-hard-make--low (list Wire) 5) (list Wire))
+(check-expect (find-widget-hard-make--low (list Cord Buttons) 20) (list Cord Wire Buttons Numbers))
 
 (define (find-widget-hard-make--low low cutoff)
   (cond [(empty? low) empty]
         [else 
          (append (find-widget-hard-make (first low) cutoff)
                (find-widget-hard-make--low (rest low) cutoff))]))
+
+;; widget string -> widget | false
+;; given widget and a name, searches the widget and all corresponding parts and will return a 
+;;   widget with the same name. Else, it returns false
+
+(check-expect (find-widget-name Cord "Cord") Cord)
+(check-expect (find-widget-name Telephone "Wire") Wire)
+(check-expect (find-widget-name Telephone "Gregor") false)
+
+(define (find-widget-name widget name)
+  (if (string=? (widget-name widget) name) 
+	widget
+	(find-widget-name-low (widget-parts widget) name)))
+
+;; (listof Widget) String -> Widget | false
+;; Given a list of widgets, it will search through the list and return the widget whose name is the same 
+;;    as the inputted name. ELse, it will return false
+
+(check-expect (find-widget-name-low empty "Wire") false)
+(check-expect (find-widget-name-low (list Wire) "Wire") Wire)
+(check-expect (find-widget-name-low (list Cord Cell) "Numbers") Numbers)
+(check-expect (find-widget-name-low (list Cord Cell) "Gregor") false)
+
+(define (find-widget-name-low low name) 
+  (cond [(empty? low) false]
+        [else 
+         (if (false? (find-widget-name (first low) name))
+		   (find-widget-name-low (rest low) name)
+		   (first low))]))
