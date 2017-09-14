@@ -43,7 +43,7 @@
 
 (check-expect (find-widget-hard-make Wire 4) (list Wire))
 (check-expect (find-widget-hard-make Cord 4) (list Wire))
-(check-expect (find-widget-hard-make Telephone 1) (list ))
+(check-expect (find-widget-hard-make Telephone 20) (list Receiver Buttons Numbers Cord Wire))
 
 (define (find-widget-hard-make widget cutoff)
   (cond [(< (widget-quantity widget) cutoff)
