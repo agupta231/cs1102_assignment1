@@ -96,3 +96,27 @@
          (if (false? (find-widget-name (first low) name))
 		   (find-widget-name-low (rest low) name)
 		   (find-widget-name (first low) name))]))
+
+;; Widget -> (listof Widget)
+;; Given the main widget, the function will return a list of the widget and all of the sub widgets required to
+;;    manufacture it
+
+(check-expect (list-all-widgets Wire) (list Wire))
+(check-expect (list-all-widgets Cord) (list Cord Wire))
+
+(define (list-all-widgets widget) 
+  (cons widget (list-all-widgets-low (widget-parts widget))))
+
+;; (listof Widget) -> (listof Widget)
+;; Given a list of widgets, will return the list of widgets as well as all of the subwidgets for each widget in
+;;     the list
+
+(check-expect (list-all-widgets-low empty) empty)
+(check-expect (list-all-widgets-low (list Wire)) (list Wire))
+(check-expect (list-all-widgets-low (list Cord)) (list Cord Wire))
+(check-expect (list-all-widgets-low (list Cell Cord)) (list Cell Buttons Numbers Cord Wire))
+
+(define (list-all-widgets-low low) 
+  (cond [(empty? low) empty]
+        [else 
+         (append (list-all-widgets (first low)) (list-all-widgets-low (rest low)))]))
