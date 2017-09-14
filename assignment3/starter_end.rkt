@@ -83,7 +83,7 @@
 
 ;; (listof Widget) String -> Widget | false
 ;; Given a list of widgets, it will search through the list and return the widget whose name is the same 
-;;    as the inputted name. ELse, it will return false
+;;    as the inputted name. Else, it will return false
 
 (check-expect (find-widget-name-low empty "Wire") false)
 (check-expect (find-widget-name-low (list Wire) "Wire") Wire)
@@ -95,4 +95,4 @@
         [else 
          (if (false? (find-widget-name (first low) name))
 		   (find-widget-name-low (rest low) name)
-		   (first low))]))
+		   (find-widget-name (first low) name))]))
