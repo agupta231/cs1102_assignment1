@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-reader.ss" "lang")((modname part1_ankur_rev) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |part 1|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;; Mikel Matticoli and Ankur Gupta
 ;; CS1102 HW 3 Part 1
 
@@ -46,7 +46,7 @@
 ;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose name length is longer than the specified natural.
 (define (find-widget-name-longer-than w len)
   (cond [(> (string-length (widget-name w)) len)
-         (cons w (find-widgets-name-longer-than (widget-parts w) len))]
+             (cons w (find-widgets-name-longer-than (widget-parts w) len))]
         [else (find-widgets-name-longer-than (widget-parts w) len)]))
 
 ;; (listof widget) Natural -> (listof widget)
@@ -70,7 +70,7 @@
 ;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose quantity is larger than the specified natural.
 (define (find-widget-quantity-over w qty)
   (cond [(> (widget-quantity w) qty)
-         (cons w (find-widgets-quantity-over (widget-parts w) qty))]
+             (cons w (find-widgets-quantity-over (widget-parts w) qty))]
         [else (find-widgets-quantity-over (widget-parts w) qty)]))
 
 ;; (listof widget) Natural -> (listof widget)
@@ -94,7 +94,7 @@
 ;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose price is lower than the specified natural.
 (define (find-widget-cheaper-than w price)
   (cond [(< (widget-price w) price)
-         (cons w (find-widgets-cheaper-than (widget-parts w) price))]
+             (cons w (find-widgets-cheaper-than (widget-parts w) price))]
         [else (find-widgets-cheaper-than (widget-parts w) price)]))
 
 ;; (listof widget) Natural -> (listof widget)
@@ -129,38 +129,35 @@
   (clean-up-list (find-widget-hard-make--low (widget-parts w) c)))
 
 (define (clean-up-list low)
-  (cond [(empty? low) empty]
-        [(not (list? low)) empty]
-        [(list? (first low))
-         (append (first low) (clean-up-list (rest low)))]
-        [else
-         (clean-up-list (rest low))]))
+  (if (list? (first low))
+	(append (first low) (clean-up-list (rest low)))
+	(clean-up-list (rest low))))
 
 (define (find-widget-hard-make--w w c)
   (cond [(empty? (widget-parts w))
-         (< (widget-quantity w) c)]
-        [(list? (find-widget-hard-make--low (widget-parts w) c))
-         (cons w (find-widget-hard-make--low (widget-parts w) c))]
-        [else
-         (if (find-widget-hard-make--low (widget-parts w) c)
-             (cons w empty)
-             false)]))
+				 (< (widget-quantity w) c)]
+		[(list? (find-widget-hard-make--low w c))
+		 (cons w (find-widget-hard-make--low w c))]
+		[else
+		  (if (find-widget-hard-make--low w c))
+		  (cons w empty)
+		  false]))
 
 (define (find-widget-hard-make--low low c)
-  (cond [(empty? low) false]
-        [(or (list? (find-widget-hard-make--w (first low) c)) (list? (find-widget-hard-make--low (rest low) c)))
-             (cond [(and (list? (find-widget-hard-make--w (first low) c)) (not (list? (find-widget-hard-make--low (rest low) c))))
-                    (find-widget-hard-make--w (first low) c)]
-                   [(and (not (list? (find-widget-hard-make--w (first low) c))) (list? (find-widget-hard-make--low (rest low) c)))
-                    (find-widget-hard-make--low (rest low) c)]
-                   [else
-                    (append (find-widget-hard-make--w (first low) c) (find-widget-hard-make--low (rest low) c))])]
-        [else
-         (or (find-widget-hard-make--w (first low) c) (find-widget-hard-make--low (rest low) c))]))
+  (cond [(empty? (rest low) false)]
+		[(or (list? (first low)) (list? (rest low)))
+		 (cond [(and (list? (first low)) (not (list? (rest low)))
+					 (first low))]
+			   [(and (not (list? (first low))) (list? (rest low))
+					 (rest low))]
+			   [else
+				 (append (first low) (rest low))])]
+		[else
+		  (or (first low) (rest low))]))
 
 
 ;(define (find-widget-hard-make widget cutoff)
-;(find-widget-hard-make--low (widget-parts widget) cutoff))
+  ;(find-widget-hard-make--low (widget-parts widget) cutoff))
 
 ;; Widget Natural -> (listof Widget)
 ;; Determines if the (sub)widget's quantity is less than the cutoff, and if so, returrns the widget
@@ -174,10 +171,10 @@
 ;(check-expect (find-widget-hard-make--widget Telephone 4) (list Wire))
 ;
 ;(define (find-widget-hard-make--widget widget cutoff)
-;(cond [(< (widget-quantity widget) cutoff)
-;(cons widget (find-widget-hard-make--low (widget-parts widget) cutoff))]
-;[else
-;(find-widget-hard-make--low (widget-parts widget) cutoff)]))
+  ;(cond [(< (widget-quantity widget) cutoff)
+         ;(cons widget (find-widget-hard-make--low (widget-parts widget) cutoff))]
+        ;[else
+         ;(find-widget-hard-make--low (widget-parts widget) cutoff)]))
 ;
 ;
 ;;; (listof Widget) Natural -> (listof Widget)
@@ -190,10 +187,10 @@
 ;(check-expect (find-widget-hard-make--low (list Cord Buttons) 20) (list Cord Wire Buttons Numbers))
 ;
 ;(define (find-widget-hard-make--low low cutoff)
-;(cond [(empty? low) empty]
-;[else 
-;(append (find-widget-hard-make--widget (first low) cutoff)
-;(find-widget-hard-make--low (rest low) cutoff))]))
+  ;(cond [(empty? low) empty]
+        ;[else 
+         ;(append (find-widget-hard-make--widget (first low) cutoff)
+               ;(find-widget-hard-make--low (rest low) cutoff))]))
 
 
 ;; ++++++++++++++ Question 5 +++++++++++++++
@@ -208,8 +205,8 @@
 
 (define (find-widget-name widget name)
   (if (string=? (widget-name widget) name) 
-      widget
-      (find-widget-name-low (widget-parts widget) name)))
+	widget
+	(find-widget-name-low (widget-parts widget) name)))
 
 ;; (listof Widget) String -> Widget | false
 ;; Given a list of widgets, it will search through the list and return the widget whose name is the same 
@@ -224,8 +221,8 @@
   (cond [(empty? low) false]
         [else 
          (if (false? (find-widget-name (first low) name))
-             (find-widget-name-low (rest low) name)
-             (find-widget-name (first low) name))]))
+		   (find-widget-name-low (rest low) name)
+		   (find-widget-name (first low) name))]))
 
 
 ;; ++++++++++++++ Question 6 +++++++++++++++
