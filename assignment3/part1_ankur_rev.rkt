@@ -115,17 +115,62 @@
 ;; ++++++++++++++ Question 4 +++++++++++++++
 
 ;; Widget Natural -> (listof Widget)
-;; Finds all subwidgets who have at least one component widget whose quantity in stock
-;;    is less than the cutoff.
-;; !!! Change purpoise
+;; Given a widget and a cutoff, returns a list of all of the subwidgets whose quantity is less than
+;;      the cutoff
 
-;(define (find-widget-hard-make widget cutoff) (list Rings))
-
-(check-expect (find-widget-hard-make Wire 4) (list Wire))
+(check-expect (find-widget-hard-make Wire 4) empty)
+(check-expect (find-widget-hard-make Wire 1) empty)
 (check-expect (find-widget-hard-make Cord 4) (list Wire))
 (check-expect (find-widget-hard-make Telephone 4) (list Wire))
+(check-expect (find-widget-hard-make Jewelry 5) (list  Necklace))
+(check-expect (find-widget-hard-make Jewelry 10) (list  Necklace Bracelet Beads))
+
+(define (find-widget-hard-make w c)
+  (clean-up-list (find-widget-hard-make--low (widget-parts low) c)))
+
+(define (clean-up-list low)
+  (if (list? (first low))
+	(append (first low) (clean-up-list (rest low)))
+	(clean-up-list (rest low))))
+
+(define (find-widget-hard-make--w w c)
+  (cond [(empty? (widget-parts w)
+				 (< (widget-quantity w) c))]
+		[(list? (find-widget-hard-make--low w c))
+		 (cons w (find-widget-hard-make--low w c))]
+		[else
+		  (if (find-widget-hard-make--low w c))
+		  (cons w empty)
+		  false]))
+
+(define (find-widget-hard-make--low low c)
+  (cond [(empty? (rest low) false)]
+		[(or (list? (first low)) (list? (rest low)))
+		 (cond [(and (list? (first low)) (not (list? (rest low)))
+					 (first low))]
+			   [(and (not (list? (first low))) (list? (rest low))
+					 (rest low))]
+			   [else
+				 (append (first low) (rest low))])]
+		[else
+		  (or (first low) (rest low))]))
+
 
 (define (find-widget-hard-make widget cutoff)
+  (find-widget-hard-make--low (widget-parts widget) cutoff))
+
+;; Widget Natural -> (listof Widget)
+;; Determines if the (sub)widget's quantity is less than the cutoff, and if so, returrns the widget
+;; and a list of all of the subwidgets whose quantity is less.
+;; !!! Change purpoise
+
+(check-expect (find-widget-hard-make--widget Wire 1) empty)
+(check-expect (find-widget-hard-make--widget Wire 5) (list Wire))
+(check-expect (find-widget-hard-make--widget Cord 4) (list Wire))
+(check-expect (find-widget-hard-make--widget Cord 11) (list Cord Wire))
+(check-expect (find-widget-hard-make--widget Telephone 4) (list Wire))
+
+(define (find-widget-hard-make--widget widget cutoff)
   (cond [(< (widget-quantity widget) cutoff)
          (cons widget (find-widget-hard-make--low (widget-parts widget) cutoff))]
         [else
@@ -144,7 +189,7 @@
 (define (find-widget-hard-make--low low cutoff)
   (cond [(empty? low) empty]
         [else 
-         (append (find-widget-hard-make (first low) cutoff)
+         (append (find-widget-hard-make--widget (first low) cutoff)
                (find-widget-hard-make--low (rest low) cutoff))]))
 
 
@@ -181,7 +226,6 @@
 
 
 ;; ++++++++++++++ Question 6 +++++++++++++++
-
 ;; Widget -> (listof Widget)
 ;; Given the main widget, the function will return a list of the widget and all of the sub widgets required to
 ;;    manufacture it
