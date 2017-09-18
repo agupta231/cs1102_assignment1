@@ -63,7 +63,6 @@
 (check-expect (find-widget-name-longer-than Jewelry 50) empty)
 (check-expect (find-widget-name-longer-than Telephone 8) (list Telephone))
 
-
 ;; ++++++++++++++ Question 2 +++++++++++++++
 
 ;; widget Natural -> (listof widget)

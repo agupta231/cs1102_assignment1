@@ -40,7 +40,19 @@
                         (fn-for-widget--low (rest low)))]))]
     (fn-for-widget--element widget)))
 
-;; Parts 1 - 4 combined
+;; Parts 1 - 3 combined
+;(check-expect (find-cond Wire (lambda(x) (widget-parts x)) (lambda (x) (> (widget-quantity x) 5))) empty)
+;(check-expect (find-cond Jewelry (lambda(x) (widget-parts x)) (lambda (x) (> (widget-quantity x) 5))) (list Jewelry Necklace Pendant Bracelet))
+;(check-expect (find-cond Jewelry (lambda(x) (widget-parts x)) (lambda (x) (> (widget-quantity x) 50))) empty)
+;(check-expect (find-cond Telephone (lambda(x) (widget-parts x)) (lambda (x) (> (widget-quantity x) 50))) (list Telephone))
+;(check-expect (find-widget-quantity-over Wire 5) empty)
+;(check-expect (find-widget-quantity-over Jewelry 5) (list Rings Necklace Chain Beads Glass))
+;(check-expect (find-widget-quantity-over Chain 5) (list Chain))
+;(check-expect (find-widget-quantity-over Beads 5) (list Beads Glass))
+;(check-expect (find-widget-cheaper-than Wire 5) empty)
+;(check-expect (find-widget-cheaper-than Jewelry 5) (list Necklace Chain Pendant Glass))
+;(check-expect (find-widget-cheaper-than Chain 8) (list Chain))
+;(check-expect (find-widget-cheaper-than Beads 12) (list Beads Glass))
 
 (define (find-cond input restof condition)
   (local [(define (find-cond--e e)
@@ -54,6 +66,10 @@
 					(append (find-cond--e (first loe)) (find-cond--loe (rest loe)))]))]
 
 	(find-cond--e input)))
+
+;; Part 5 abstraction
+
+; !!! 
 
 ;; Parts 6 & 7 combined
 ;; X (X -> (listof X)) (X -> Y) -> (listof Y)
@@ -81,3 +97,23 @@
                            (list-all--low (rest loe)))]))]
 
     (list-all--element input)))
+
+
+;; Sort function 
+
+(define (sort-widgets wid order)
+  (local [(define (gen-list--e w)
+			(cons w (gen-list--loe (widget-parts w))))
+		  (define (gen-list--loe loe)
+			(cond [(empty? loe) empty]
+				  [else
+					(append (gen-list--e (first loe)) (gen-list--loe (rest loe)))]))
+		  (define (sort-list low)
+			(cond [(empty low) empty]
+				  [else
+					(local
+					  [(define pivot (first loe))]
+					  (append
+						(sort-list (find-elements order pivot (rest loe)))
+						(list loe)
+						(sort-list (find-elements order pivot (rest loe)))))]))]))
