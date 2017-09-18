@@ -116,4 +116,12 @@
 					  (append
 						(sort-list (find-elements order pivot (rest loe)))
 						(list loe)
-						(sort-list (find-elements order pivot (rest loe)))))]))]))
+						(sort-list (find-elements (lambda (x y) (not (order x y))) pivot (rest loe)))))]))
+		  (define (find-elements fn p loe)
+			(cond [(empty? loe) empty]
+				  [if (fn p (first loe))
+					(cons p (find-elements (rest loe)))
+					(find-elements (rest loe))]))]
+
+	(sort-list (gen-list--e wid))))
+
