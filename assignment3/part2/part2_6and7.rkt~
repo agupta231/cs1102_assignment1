@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname part2_6and7) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname part2) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;; Mikel Matticoli and Ankur Gupta
 ;; CS1102 HW 3 Part 1
 
@@ -56,16 +56,16 @@
 
 (define (find-cond input restof condition)
   (local [(define (find-cond--e e)
-            (cond [(condition e) 
-                   (cons e (find-cond--loe (restof e)))]
-                  [else
-                   (find-cond--loe (restof e))]))
-          (define (find-cond--loe loe)
-            (cond [(empty? loe) empty]
-                  [else
-                   (append (find-cond--e (first loe)) (find-cond--loe (rest loe)))]))]
+			(cond [(condition e) 
+				   (cons e (find-cond--loe (restof e)))]
+				  [else
+					(find-cond--loe (restof e))]))
+		  (define (find-cond--loe loe)
+			(cond [(empty? loe) empty]
+				  [else
+					(append (find-cond--e (first loe)) (find-cond--loe (rest loe)))]))]
 
-    (find-cond--e input)))
+	(find-cond--e input)))
 
 ;; Part 5 abstraction
 
@@ -101,43 +101,27 @@
 
 ;; Sort function 
 
-(check-expect (sort-widgets Wire (lambda (x y) (< (widget-quantity x) (widget-quantity y)))) (list Wire))
-(check-expect (sort-widgets Cord (lambda (x y) (> (widget-quantity x) (widget-quantity y)))) (list Wire Cord))
-
 (define (sort-widgets wid order)
   (local [(define (gen-list--e w)
-            (cons w (gen-list--loe (widget-parts w))))
-          (define (gen-list--loe loe)
-            (cond [(empty? loe) empty]
-                  [else
-                   (append (gen-list--e (first loe)) (gen-list--loe (rest loe)))]))
-          (define (sort-list loe)
-            (cond [(empty? loe) empty]
-                  [else
-                   (local
-                     [(define pivot (first loe))]
-                     (append
-                      (sort-list (find-elements order pivot (rest loe)))
-                      (list pivot)
-                      (sort-list (find-elements (lambda (x y) (not (order x y))) pivot (rest loe)))))]))
-          (define (find-elements fn p loe)
-            (cond [(empty? loe) empty]
-                  [(fn p (first loe))
-                   (cons (first loe) (find-elements fn p (rest loe)))]
-                  [else
-                   (find-elements fn p (rest loe))]))]
+			(cons w (gen-list--loe (widget-parts w))))
+		  (define (gen-list--loe loe)
+			(cond [(empty? loe) empty]
+				  [else
+					(append (gen-list--e (first loe)) (gen-list--loe (rest loe)))]))
+		  (define (sort-list low)
+			(cond [(empty low) empty]
+				  [else
+					(local
+					  [(define pivot (first loe))]
+					  (append
+						(sort-list (find-elements order pivot (rest loe)))
+						(list loe)
+						(sort-list (find-elements (lambda (x y) (not (order x y))) pivot (rest loe)))))]))
+		  (define (find-elements fn p loe)
+			(cond [(empty? loe) empty]
+				  [if (fn p (first loe))
+					(cons p (find-elements (rest loe)))
+					(find-elements (rest loe))]))]
 
-    (sort-list (gen-list--e wid))))
+	(sort-list (gen-list--e wid))))
 
-(define (gen-list--e w)
-  (cons w (gen-list--loe (widget-parts w))))
-(define (gen-list--loe loe)
-  (cond [(empty? loe) empty]
-        [else
-         (append (gen-list--e (first loe)) (gen-list--loe (rest loe)))]))
-(define (find-elements fn p loe)
-  (cond [(empty? loe) empty]
-        [(fn p (first loe))
-         (cons (first loe) (find-elements fn p (rest loe)))]
-        [else
-         (find-elements fn p (rest loe))]))
