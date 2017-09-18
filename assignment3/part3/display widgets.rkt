@@ -60,3 +60,8 @@
                     (render--w (first low) n)
                     (render--low (rest low) n))]))]
     (render--w widget 0)))
+
+;; Widget -> Image
+;; Given a widget, outputs an image in which 
+(define (simple-render widget)
+  (render widget (lambda (x) "black")))
