@@ -24,6 +24,7 @@
 (define Rings (make-widget "Rings" 15 8 11 empty))
 (define Jewelry (make-widget "Jewelry" 4 17 30 (list Rings Necklace Bracelet)))
 
+#;
 (define (fn-for-widget widget)
   (local [(define (fn-for-widget--element w) 
             (... (widget-name w) 
@@ -38,6 +39,9 @@
                    (... fn-for-widget--element (first low) 
                         (fn-for-widget--low (rest low)))]))]
     (fn-for-widget--element widget)))
+
+;; Parts 1 - 4 combined
+
 
 ;; Parts 6 & 7 combined
 ;; X (X -> (listof X)) (X -> Y) -> (listof Y)
