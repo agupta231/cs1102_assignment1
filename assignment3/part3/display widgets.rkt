@@ -38,6 +38,31 @@
 ;; widget fn -> Image
 ;; Given a widget an a function, this function will create a hierachy in which the sub widgets are indented in and the image colors are those according to function inputted
 
+(check-expect (simple-render Glass (lambda (x) TEXT-COLOR)) (text "Glass : 6 @ $9" TEXT-SIZE TEXT-COLOR))
+(check-expect (simple-render Beads (lambda (x) 
+									 (if (< (widget-quantity x) 10) "purple" TEXT-COLOR))) (above/align
+									  "left"
+									  (text "Beads : 25 @ $12" TEXT-SIZE TEXT-COLOR)
+									  (text (string-append (blanks TAB) "Glass : 6 @ $9") TEXT-SIZE "purple"))
+(check-expect (simple-render Necklace (lambda (x) 
+										(if (> (widget-price x) 2) "green" TEXT-COLOR))) (above/align
+									  "left"
+									  (text "Necklace : 10 @ $7" TEXT-SIZE TEXT-COLOR)
+									  (text (string-append (blanks TAB) "Chain : 7 @ $2") TEXT-SIZE TEXT-COLOR)
+									  (text (string-append (blanks TAB) "Pendant : 4 @ $3") TEXT-SIZE "green"))
+(check-expect (simple-render Jewelry (lambda (x)
+									   (if (< (string-length (widget-name w)) 6)
+										 "blue"
+										 TEXT-COLOR)))
+			  (above/align
+				"left"
+				(text "Jewelry : 4 @ 17" TEXT-SIZE TEXT-COLOR)
+				(text (string-append (blanks TAB) "Rings : 15 @ 8" TEXT-SIZE "blue"))
+				(text (string-append (blanks TAB) "Necklace : 10 @ 7" TEXT-SIZE TEXT-COLOR))
+				(text (string-append (blanks (* 2 TAB)) "Chain : 7 @ $2") TEXT-SIZE "blue") 
+				(text (string-append (blanks (* 2 TAB)) "Pendant : 4 @ $3") TEXT-SIZE TEXT-COLOR)
+				(text (string-append (blanks TAB) "Bracelet : 5 @ 3" TEXT-SIZE TEXT-COLOR))))
+
 (define (render widget fn)
   (local [(define (render--w wid n)
             (above/align 
