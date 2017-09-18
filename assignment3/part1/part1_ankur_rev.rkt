@@ -1,11 +1,46 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-reader.ss" "lang")((modname part1_ankur_rev) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname part1_ankur_rev) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;; Mikel Matticoli and Ankur Gupta
 ;; CS1102 HW 3 Part 1
 
+;; ================
+;; Data Defintions
+
 (define-struct widget(name quantity time price parts))
 ;; a widget is a (make-widget String Natural Natural Number ListOfWidget)
+
+#;
+(define (fn-for-widget w)
+  (... (widget-name w)
+       (widget-quantity w)
+       (widget-time w)
+       (widget-price w)
+       (fn-for-low
+        (widget-parts w))))
+
+;; Template rules used
+;; Compound: 4 fields
+;; Reference: (widget-parts w) is a (listof Widget)
+
+;; (listof Widget) is a list of widgets
+
+#;
+(define (fn-for-low low)
+  (cond [(empty? low) ...]
+        [else 
+         (... fn-for-widget (first low)
+              (fn-for-low (rest low)))]))
+
+;; Template rules used:
+;;    - one of: 2 cases
+;;    - atomic distinct: empty
+;;    - compund (listof Widget)
+;;    - self-reference: (rest low) is a (listof Widget)
+;;    - referance: (first low) is a widget
+
+;; ================
+;; Constants
 
 (define Wire (make-widget "Wire" 3 5 5 empty))
 (define Cord (make-widget "Cord" 7 5 5 (list Wire)))
@@ -24,44 +59,46 @@
 (define Rings (make-widget "Rings" 15 8 11 empty))
 (define Jewelry (make-widget "Jewelry" 4 17 30 (list Rings Necklace Bracelet)))
 
-;; Templates
-#;
-(define (fn-for-widget w)
-  (... (widget-name w)
-       (widget-quantity w)
-       (widget-time w)
-       (widget-price w)
-       (fn-for-low
-        (widget-parts w))))
-#;
-(define (fn-for-low low)
-  (cond [(empty? low) ...]
-        [else 
-         (... fn-for-widget (first low)
-              (fn-for-low (rest low)))]))
+;; =================
+;; Functions
+
 
 ;; ++++++++++++++ Question 1 +++++++++++++++
 
 ;; widget Natural -> (listof widget)
-;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose name length is longer than the specified natural.
+;; Given a widget and a length, this function will return all (sub)widgets whose name is longer than the length specified
+
+(check-expect (find-widget-name-longer-than Wire 10) empty)
+(check-expect (find-widget-name-longer-than Wire 2) (list Wire))
+(check-expect (find-widget-name-longer-than Cord 3) (list Cord Wire))
+(check-expect (find-widget-name-longer-than Cell 5) (list Buttons Numbers))
+(check-expect (find-widget-name-longer-than Jewelry 5) (list Jewelry Necklace Pendant Bracelet))
+
+;; Template taken from Widget
+
 (define (find-widget-name-longer-than w len)
   (cond [(> (string-length (widget-name w)) len)
          (cons w (find-widgets-name-longer-than (widget-parts w) len))]
         [else (find-widgets-name-longer-than (widget-parts w) len)]))
 
+
 ;; (listof widget) Natural -> (listof widget)
-;; Runs find-widget-name-longer-than recursively for all items in a list of widgets
+;; Given a (listof Widget) and a length, this function will return all (sub)widgets in the list whose name is longer than the length specified
+
+(check-expect (find-widgets-name-longer-than empty 10) empty)
+(check-expect (find-widgets-name-longer-than (list Wire) 10) empty)
+(check-expect (find-widgets-name-longer-than (list Wire) 1) (list Wire))
+(check-expect (find-widgets-name-longer-than (list Cord Buttons) 5) (list Buttons))
+(check-expect (find-widgets-name-longer-than (list Jewelry Buttons) 5) (list Jewelry Necklace Pendant Bracelet Buttons Numbers))
+
+;; Template taken from (listof Widget)
+
 (define (find-widgets-name-longer-than low len)
   (cond [(empty? low) empty]
         [else 
          (append (find-widget-name-longer-than (first low) len)
                  (find-widgets-name-longer-than (rest low) len))]))
 
-;; Test cases
-(check-expect (find-widget-name-longer-than Wire 5) empty)
-(check-expect (find-widget-name-longer-than Jewelry 5) (list Jewelry Necklace Pendant Bracelet))
-(check-expect (find-widget-name-longer-than Jewelry 50) empty)
-(check-expect (find-widget-name-longer-than Telephone 8) (list Telephone))
 
 ;; ++++++++++++++ Question 2 +++++++++++++++
 
