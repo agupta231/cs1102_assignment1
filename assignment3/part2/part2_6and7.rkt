@@ -42,6 +42,18 @@
 
 ;; Parts 1 - 4 combined
 
+(define (find-cond input restof condition)
+  (local [(define (find-cond--e e)
+			(cond [(condition e) 
+				   (cons e (find-cond--loe (restof e)))]
+				  [else
+					(find-cond--loe (restof e))]))
+		  (define (find-cond--loe loe)
+			(cond [(empty? loe) empty]
+				  [else
+					(append (find-cond--e (first loe)) (find-cond--loe (rest loe)))]))]
+
+	(find-cond--e input)))
 
 ;; Parts 6 & 7 combined
 ;; X (X -> (listof X)) (X -> Y) -> (listof Y)
@@ -67,4 +79,5 @@
                   [else 
                    (append (list-all--element (first loe)) 
                            (list-all--low (rest loe)))]))]
+
     (list-all--element input)))
