@@ -62,6 +62,9 @@
     (render--w widget 0)))
 
 ;; Widget -> Image
-;; Given a widget, outputs an image in which 
+;; Given a widget, outputs an image in which subwidgets are indented a tab inwards from the master widget
+
+(check-expect (simple-render Glass) (text "Glass : 6 @ $9" TEXT-SIZE))
+
 (define (simple-render widget)
   (render widget (lambda (x) "black")))
