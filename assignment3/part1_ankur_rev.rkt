@@ -114,87 +114,32 @@
 
 ;; ++++++++++++++ Question 4 +++++++++++++++
 
-;; Widget Natural -> (listof Widget)
-;; Given a widget and a cutoff, returns a list of all of the subwidgets whose quantity is less than
-;;      the cutoff
-
-(check-expect (find-widget-hard-make Wire 4) empty)
-(check-expect (find-widget-hard-make Wire 1) empty)
-(check-expect (find-widget-hard-make Cord 4) (list Wire))
-(check-expect (find-widget-hard-make Telephone 4) (list Wire))
-(check-expect (find-widget-hard-make Jewelry 5) (list  Necklace))
-(check-expect (find-widget-hard-make Jewelry 10) (list  Necklace Bracelet Beads))
+;; !!! Make new check-expects
+(check-expect (find-widget-hard-make Jewelry 5) (list  Necklace))
+(check-expect (find-widget-hard-make Jewelry 10) (list  Necklace Bracelet Beads))
 
 (define (find-widget-hard-make w c)
-  (clean-up-list (find-widget-hard-make--low (widget-parts w) c)))
+  (n-list--loe (widget-parts w) c))
 
-(define (clean-up-list low)
-  (cond [(empty? low) empty]
-        [(not (list? low)) empty]
-        [(list? (first low))
-         (append (first low) (clean-up-list (rest low)))]
+(define (n-list--e w c)
+  (cond [(subs-hard-to-make?--loe (widget-parts w) c) (cons w (n-list--loe (widget-parts w) c))]
         [else
-         (clean-up-list (rest low))]))
+         (n-list--loe (widget-parts w) c)]))
 
-(define (find-widget-hard-make--w w c)
-  (cond [(empty? (widget-parts w))
-         (< (widget-quantity w) c)]
-        [(list? (find-widget-hard-make--low (widget-parts w) c))
-         (cons w (find-widget-hard-make--low (widget-parts w) c))]
+(define (n-list--loe loe c)
+  (cond [(empty? loe) empty]
         [else
-         (if (find-widget-hard-make--low (widget-parts w) c)
-             (cons w empty)
-             false)]))
+         (append (n-list--e (first loe) c) (n-list--loe (rest loe) c))]))
 
-(define (find-widget-hard-make--low low c)
+(define (subs-hard-to-make? w c)
+  (cond [(empty? (widget-parts w)) (< (widget-quantity w) c)]
+        [else
+         (subs-hard-to-make?--loe (widget-parts w) c)]))
+
+(define (subs-hard-to-make?--loe low c)
   (cond [(empty? low) false]
-        [(or (list? (find-widget-hard-make--w (first low) c)) (list? (find-widget-hard-make--low (rest low) c)))
-             (cond [(and (list? (find-widget-hard-make--w (first low) c)) (not (list? (find-widget-hard-make--low (rest low) c))))
-                    (find-widget-hard-make--w (first low) c)]
-                   [(and (not (list? (find-widget-hard-make--w (first low) c))) (list? (find-widget-hard-make--low (rest low) c)))
-                    (find-widget-hard-make--low (rest low) c)]
-                   [else
-                    (append (find-widget-hard-make--w (first low) c) (find-widget-hard-make--low (rest low) c))])]
         [else
-         (or (find-widget-hard-make--w (first low) c) (find-widget-hard-make--low (rest low) c))]))
-
-
-;(define (find-widget-hard-make widget cutoff)
-;(find-widget-hard-make--low (widget-parts widget) cutoff))
-
-;; Widget Natural -> (listof Widget)
-;; Determines if the (sub)widget's quantity is less than the cutoff, and if so, returrns the widget
-;; and a list of all of the subwidgets whose quantity is less.
-;; !!! Change purpoise
-
-;(check-expect (find-widget-hard-make--widget Wire 1) empty)
-;(check-expect (find-widget-hard-make--widget Wire 5) (list Wire))
-;(check-expect (find-widget-hard-make--widget Cord 4) (list Wire))
-;(check-expect (find-widget-hard-make--widget Cord 11) (list Cord Wire))
-;(check-expect (find-widget-hard-make--widget Telephone 4) (list Wire))
-;
-;(define (find-widget-hard-make--widget widget cutoff)
-;(cond [(< (widget-quantity widget) cutoff)
-;(cons widget (find-widget-hard-make--low (widget-parts widget) cutoff))]
-;[else
-;(find-widget-hard-make--low (widget-parts widget) cutoff)]))
-;
-;
-;;; (listof Widget) Natural -> (listof Widget)
-;;; Searches through a list of widgets and will return a list of all the widgets whose
-;;;    quantity is less than the cutoff 
-;;; !!! Change Purpoise
-;
-;(check-expect (find-widget-hard-make--low empty 3) empty)
-;(check-expect (find-widget-hard-make--low (list Wire) 5) (list Wire))
-;(check-expect (find-widget-hard-make--low (list Cord Buttons) 20) (list Cord Wire Buttons Numbers))
-;
-;(define (find-widget-hard-make--low low cutoff)
-;(cond [(empty? low) empty]
-;[else 
-;(append (find-widget-hard-make--widget (first low) cutoff)
-;(find-widget-hard-make--low (rest low) cutoff))]))
-
+         (or (subs-hard-to-make? (first low) c) (subs-hard-to-make?--loe (rest low) c))]))
 
 ;; ++++++++++++++ Question 5 +++++++++++++++
 
