@@ -72,8 +72,17 @@
 (check-expect (simple-render Necklace) (above/align
 									  "left"
 									  (text "Necklace : 10 @ $7" TEXT-SIZE TEXT-COLOR)
-									  (text (string-append (blanks TAB) "Chain : 7 @ $2") TEXT-SIZE TEXT-COLOR))
+									  (text (string-append (blanks TAB) "Chain : 7 @ $2") TEXT-SIZE TEXT-COLOR)
 									  (text (string-append (blanks TAB) "Pendant : 4 @ $3") TEXT-SIZE TEXT-COLOR))
+(check-expect (simple-render Jewelry)
+			  (above/align
+				"left"
+				(text "Jewelry : 4 @ 17" TEXT-SIZE TEXT-COLOR)
+				(text (string-append (blanks TAB) "Rings : 15 @ 8" TEXT-SIZE TEXT-COLOR))
+				(text (string-append (blanks TAB) "Necklace : 10 @ 7" TEXT-SIZE TEXT-COLOR))
+				(text (string-append (blanks (* 2 TAB)) "Chain : 7 @ $2") TEXT-SIZE TEXT-COLOR) 
+				(text (string-append (blanks (* 2 TAB)) "Pendant : 4 @ $3") TEXT-SIZE TEXT-COLOR)
+				(text (string-append (blanks TAB) "Bracelet : 5 @ 3" TEXT-SIZE TEXT-COLOR))))
 
 (define (simple-render widget)
-  (render widget (lambda (x) "black")))
+  (render widget (lambda (x) TEXT-COLOR)))
