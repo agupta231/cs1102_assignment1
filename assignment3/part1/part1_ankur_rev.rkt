@@ -88,7 +88,7 @@
 (check-expect (find-widgets-name-longer-than empty 10) empty)
 (check-expect (find-widgets-name-longer-than (list Wire) 10) empty)
 (check-expect (find-widgets-name-longer-than (list Wire) 1) (list Wire))
-(check-expect (find-widgets-name-longer-than (list Cord Buttons) 5) (list Buttons))
+(check-expect (find-widgets-name-longer-than (list Cord Buttons) 5) (list Buttons Numbers))
 (check-expect (find-widgets-name-longer-than (list Jewelry Buttons) 5) (list Jewelry Necklace Pendant Bracelet Buttons Numbers))
 
 ;; Template taken from (listof Widget)
@@ -103,26 +103,36 @@
 ;; ++++++++++++++ Question 2 +++++++++++++++
 
 ;; widget Natural -> (listof widget)
-;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose quantity is larger than the specified natural.
+;; Given a widget and an amount, will return all (sub)widgets whose quantity is less than the amount
+
+(check-expect (find-widget-quantity-over Wire 5) empty)
+(check-expect (find-widget-quantity-over Jewelry 5) (list Rings Necklace Chain Beads Glass))
+(check-expect (find-widget-quantity-over Chain 5) (list Chain))
+(check-expect (find-widget-quantity-over Beads 5) (list Beads Glass))
+
+;; Template taken from Widget
+
 (define (find-widget-quantity-over w qty)
   (cond [(> (widget-quantity w) qty)
          (cons w (find-widgets-quantity-over (widget-parts w) qty))]
         [else (find-widgets-quantity-over (widget-parts w) qty)]))
 
 ;; (listof widget) Natural -> (listof widget)
-;; Runs find-widget-quantuty-over recursively for all items in a list of widgets
+;; Given a (listof Widget) and an amount, will return all (sub)widgets in the list whose quantity is less than the amount
+
+(check-expect (find-widgets-quantity-over empty 5) empty)
+(check-expect (find-widgets-quantity-over (list Wire) 5) empty)
+(check-expect (find-widgets-quantity-over (list Beads) 5) (list Beads Glass))
+(check-expect (find-widgets-quantity-over (list Beads Chain) 5) (list Beads Glass Chain))
+(check-expect (find-widget-quantity-over Jewelry 5) (list Rings Necklace Chain Beads Glass))
+
+;; Template taken from (listof Widget)
+
 (define (find-widgets-quantity-over low qty)
   (cond [(empty? low) empty]
         [else 
          (append (find-widget-quantity-over (first low) qty)
                  (find-widgets-quantity-over (rest low) qty))]))
-
-;; Test cases
-(check-expect (find-widget-quantity-over Wire 5) empty)
-(check-expect (find-widget-quantity-over Jewelry 5) (list Rings Necklace Chain Beads Glass))
-(check-expect (find-widget-quantity-over Chain 5) (list Chain))
-(check-expect (find-widget-quantity-over Beads 5) (list Beads Glass))
-
 
 ;; ++++++++++++++ Question 3 +++++++++++++++
 
