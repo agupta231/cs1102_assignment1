@@ -64,7 +64,16 @@
 ;; Widget -> Image
 ;; Given a widget, outputs an image in which subwidgets are indented a tab inwards from the master widget
 
-(check-expect (simple-render Glass) (text "Glass : 6 @ $9" TEXT-SIZE))
+(check-expect (simple-render Glass) (text "Glass : 6 @ $9" TEXT-SIZE TEXT-COLOR))
+(check-expect (simple-render Beads) (above/align
+									  "left"
+									  (text "Beads : 25 @ $12" TEXT-SIZE TEXT-COLOR)
+									  (text (string-append (blanks TAB) "Glass : 6 @ $9") TEXT-SIZE TEXT-COLOR))
+(check-expect (simple-render Necklace) (above/align
+									  "left"
+									  (text "Necklace : 10 @ $7" TEXT-SIZE TEXT-COLOR)
+									  (text (string-append (blanks TAB) "Chain : 7 @ $2") TEXT-SIZE TEXT-COLOR))
+									  (text (string-append (blanks TAB) "Pendant : 4 @ $3") TEXT-SIZE TEXT-COLOR))
 
 (define (simple-render widget)
   (render widget (lambda (x) "black")))
