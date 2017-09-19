@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname part1_final) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname part1_ankur_rev) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;; Mikel Matticoli and Ankur Gupta
 ;; CS1102 HW 3 Part 1
 
@@ -221,7 +221,7 @@
 (check-expect (subs-hard-to-make? Wire 1) false)
 (check-expect (subs-hard-to-make? Wire 5) true)
 (check-expect (subs-hard-to-make? Cord 4) true)
-(check-expect (subs-hard-to-make? Jewelry 5) true)
+(check-expect (subs-hard-to-make? Jewelery 5) true)
  
 ;; Template taken from Widget
 
@@ -234,7 +234,7 @@
 ;; Given a (listof Widget) and a cutoff, the function will determine if there is even a single (sub)widget in the 
 ;;    list that is "hard-to-make"... otherwise, it will return false
 
-(check-expect (subs-hard-to-make?--loe empty 9) false)
+(check-expect (subs-hard-to-make?--loe empty 9) empty)
 (check-expect (subs-hard-to-make?--loe (list Glass) 7) true)
 (check-expect (subs-hard-to-make?--loe (list Receiver Buttons Cord) 2) false)
 (check-expect (subs-hard-to-make?--loe (list Receiver Buttons Cord) 4) true)
