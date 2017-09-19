@@ -173,6 +173,8 @@
                Jewelry
                (lambda (x) (> (widget-price x) 1))) (list Bracelet Beads))
 
+;; Template rules used: abtraction function for widget & (listof Widget)
+
 (define (dependent-filter wid fn)
   (local [(define (n-list--e w)
             (cond [(subs-hard-to-make?--loe (widget-parts w)) (cons w (n-list--loe (widget-parts w)))]
@@ -208,23 +210,49 @@
 (define (find-widget-hard-make w cutoff)
   (dependent-filter w (lambda (w) (< (widget-quantity w) cutoff))))
 
+
+;; +++++++++++++ Abstraction Function for 5 ++++++++++++++
+
+;; widget (widget -> boolean) -> widget | false
+;; Given widget an a comparision function, searches the widget and subwidgest and will return
+;;   widget that returns true for the comparision function. Else, returns false
+
+(check-expect (search-widget Wire (lambda (x) (string=? (widget-name x) "Gregor"))) false)
+(check-expect (search-widget Wire (lambda (x) (string=? (widget-name x) "Wire"))) Wire)
+(check-expect (search-widget Telephone (lambda (x) (= (widget-quantity x) 9))) Numbers)
+
+;; Template rules used: abtraction function for widget & (listof Widget)
+
+(define (search-widget widg fn)
+  (local [(define (find-widget widget)
+            (if (fn widget) 
+            widget
+            (find-low (widget-parts widget))))
+          (define (find-low low) 
+            (cond [(empty? low) false]
+                  [else 
+                   (if (false? (find-widget (first low)))
+                       (find-low (rest low))
+                       (find-widget (first low)))]))]
+    (find-widget widg)))
+
 ;; +++++++ Part 1 Func 5 +++++++++++
 
-;; Widget String -> Widget or false
-;; Finds widget by name
+;; widget string -> widget | false
+;; given widget and a name, searches the widget and all corresponding parts and will return a 
+;;   widget with the same name. Else, it returns false
+
+(check-expect (find-widget-name Wire "Wire") Wire)
+(check-expect (find-widget-name Cord "Wire") Wire)
+(check-expect (find-widget-name Telephone "Necklace") false)
+(check-expect (find-widget-name Cord "") false)
+
 (define (find-widget-name w name)
   (local [(define search
             (filter-widgets w (lambda (w) (string=? (widget-name w) name))))]
     (if (empty? search)
         false
         (first search))))
-
-;; Test cases
-(check-expect (find-widget-name Wire "Wire") Wire)
-(check-expect (find-widget-name Cord "Wire") Wire)
-(check-expect (find-widget-name Telephone "Necklace") false)
-(check-expect (find-widget-name Cord "") false)
-
 
 ;; +++++++++++++++ Abstraction functions for 6 -7 +++++++++++++++
 
