@@ -195,17 +195,18 @@
 
 ;; +++++++ Part 1 Func 4 ++++++++++++
 
-;; Widget Natural -> (listof Widget)
-;; Finds all subwidgets who have at least one component widget whose quantity in stock
-;; is less than the cutoff.
+;; Widget natural -> (listof Widget)
+;; Given a widget and a cutoff, will return all subwidgets who have >= one subwidget whose quanity is less than the cutoff
+
+(check-expect (find-widget-hard-make Wire 5) empty)
+(check-expect (find-widget-hard-make Wire 1) empty)
+(check-expect (find-widget-hard-make Cord 5) empty)
+(check-expect (find-widget-hard-make Cell 10) (list Buttons))
+(check-expect (find-widget-hard-make Jewelry 5) (list  Necklace))
+(check-expect (find-widget-hard-make Jewelry 10) (list  Necklace Bracelet Beads))
+
 (define (find-widget-hard-make w cutoff)
-  (filter-widgets w (lambda (w) (< (widget-quantity w) cutoff))))
-
-;; Test cases
-(check-expect (find-widget-hard-make Wire 4) (list Wire))
-(check-expect (find-widget-hard-make Cord 4) (list Wire))
-(check-expect (find-widget-hard-make Telephone 4) (list Wire))
-
+  (dependent-filter w (lambda (w) (< (widget-quantity w) cutoff))))
 
 ;; +++++++ Part 1 Func 5 +++++++++++
 
