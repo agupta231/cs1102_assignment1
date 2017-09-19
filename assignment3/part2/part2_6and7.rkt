@@ -128,16 +128,3 @@
                    (find-elements fn p (rest loe))]))]
 
     (sort-list (gen-list--e wid))))
-
-(define (gen-list--e w)
-  (cons w (gen-list--loe (widget-parts w))))
-(define (gen-list--loe loe)
-  (cond [(empty? loe) empty]
-        [else
-         (append (gen-list--e (first loe)) (gen-list--loe (rest loe)))]))
-(define (find-elements fn p loe)
-  (cond [(empty? loe) empty]
-        [(fn p (first loe))
-         (cons (first loe) (find-elements fn p (rest loe)))]
-        [else
-         (find-elements fn p (rest loe))]))

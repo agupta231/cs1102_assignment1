@@ -218,12 +218,28 @@
 ;; Given a widget, will determine if a widgets subs (and by transistivity, the widget itself) are "hard-to-make".
 ;;     If so, returns true, otherwise, returns false)
 
-(check-expect (subs-hard-to-make? 
+(check-expect (subs-hard-to-make? Wire 1) false)
+(check-expect (subs-hard-to-make? Wire 5) true)
+(check-expect (subs-hard-to-make? Cord 4) true)
+(check-expect (subs-hard-to-make? Jewelery 5) true)
+ 
+;; Template taken from Widget
 
 (define (subs-hard-to-make? w c)
   (cond [(empty? (widget-parts w)) (< (widget-quantity w) c)]
         [else
          (subs-hard-to-make?--loe (widget-parts w) c)]))
+
+;; (listof Widget) natural -> boolean
+;; Given a (listof Widget) and a cutoff, the function will determine if there is even a single (sub)widget in the 
+;;    list that is "hard-to-make"... otherwise, it will return false
+
+(check-expect (subs-hard-to-make?--loe empty 9) empty)
+(check-expect (subs-hard-to-make?--loe (list Glass) 7) true)
+(check-expect (subs-hard-to-make?--loe (list Receiver Buttons Cord) 2) false)
+(check-expect (subs-hard-to-make?--loe (list Receiver Buttons Cord) 4) true)
+
+;; Template taken from (listof Widget)
 
 (define (subs-hard-to-make?--loe low c)
   (cond [(empty? low) false]
