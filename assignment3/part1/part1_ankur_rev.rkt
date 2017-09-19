@@ -306,21 +306,32 @@
 
 ;; ++++++++++++++ Question 7 +++++++++++++++
 
-;; widget Natural -> (listof widget)
-;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose price is lower than the specified natural.
+;; widget -> (listof Widget)
+;; Given a widget, will return the name of the widget and the subwidgets used to manufacture it
+
+(check-expect (list-all-widget-names Beads) (list (widget-name Beads) (widget-name Glass)))
+(check-expect (list-all-widget-names Jewelry) (list "Jewelry" "Rings" "Necklace" "Chain" "Pendant" "Bracelet" "Beads" "Glass"))
+(check-expect (list-all-widget-names Chain) (list "Chain"))
+(check-expect (list-all-widget-names Wire ) (list "Wire"))
+
+;; Template taken from Widget
+
 (define (list-all-widget-names w)
   (cons (widget-name w) (list-all-widgets-names (widget-parts w))))
 
-;; (listof widget) Natural -> (listof widget)
-;; Runs find-widget-cheaper-than recursively for all items in a list of widgets
+;; (listof Widget) -> (listof Widget)
+;; Given a (listof Widget), this function will go through the list and and return a list of all of the names of the widgets
+;;   as well as the subwidgetsin the list
+
+(check-expect (list-all-widgets-names empty) empty)
+(check-expect (list-all-widgets-names (list Glass)) (list "Glass"))
+(check-expect (list-all-widgets-names (list Cord)) (list "Cord" "Wire"))
+(check-expect (list-all-widgets-names (list Cell Bracelet)) (list "Cell" "Buttons" "Numbers" "Bracelet" "Beads" "Glass"))
+
+;; Template taken from (listof Widget)
+
 (define (list-all-widgets-names low)
   (cond [(empty? low) empty]
         [else 
          (append (list-all-widget-names (first low))
                  (list-all-widgets-names (rest low)))]))
-
-;; Test Cases
-(check-expect (list-all-widget-names Beads ) (list (widget-name Beads) (widget-name Glass)))
-(check-expect (list-all-widget-names Jewelry ) (list "Jewelry" "Rings" "Necklace" "Chain" "Pendant" "Bracelet" "Beads" "Glass"))
-(check-expect (list-all-widget-names Chain) (list "Chain"))
-(check-expect (list-all-widget-names Wire ) (list "Wire"))
