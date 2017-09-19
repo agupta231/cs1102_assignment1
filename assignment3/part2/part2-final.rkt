@@ -154,6 +154,45 @@
 (define (find-widget-cheaper-than w price)
   (filter-widgets w (lambda (w) (< (widget-price w) price))))
 
+;; ++++++++++++ Abstraction function for 4 +++++++++++++
+
+;; widget (widget -> boolean) -> (listof widget)
+;; Given a widget and a comparision function, will return a (listof widget) of the subwidgets of the
+;;    inputted widget where each subwidget has at least one subwidget who fits the comparision function
+
+(check-expect (dependent-filter
+               Wire
+               (lambda (x) (< (widget-quantity x) 5))) empty)
+(check-expect (dependent-filter
+               Cell
+               (lambda (x) (> (widget-quantity x) 2))) (list Buttons))
+(check-expect (dependent-filter
+               Jewelry
+               (lambda (x) (< (widget-price x) 10))) (list Necklace Bracelet Beads))
+(check-expect (dependent-filter
+               Jewelry
+               (lambda (x) (> (widget-price x) 1))) (list Bracelet Beads))
+
+(define (dependent-filter wid fn)
+  (local [(define (n-list--e w)
+            (cond [(subs-hard-to-make?--loe (widget-parts w)) (cons w (n-list--loe (widget-parts w)))]
+                  [else
+                   (n-list--loe (widget-parts w))]))
+          (define (n-list--loe loe)
+            (cond [(empty? loe) empty]
+                  [else
+                   (append (n-list--e (first loe)) (n-list--loe (rest loe)))]))
+          (define (subs-hard-to-make? w)
+            (cond [(empty? (widget-parts w)) (fn w)]
+                  [else
+                   (subs-hard-to-make?--loe (widget-parts w))]))
+          (define (subs-hard-to-make?--loe low)
+            (cond [(empty? low) false]
+                  [else
+                   (or (subs-hard-to-make? (first low)) (subs-hard-to-make?--loe (rest low) ))]))]
+    (n-list--loe (widget-parts wid))))
+          
+
 ;; +++++++ Part 1 Func 4 ++++++++++++
 
 ;; Widget Natural -> (listof Widget)
@@ -168,7 +207,7 @@
 (check-expect (find-widget-hard-make Telephone 4) (list Wire))
 
 
-
+;; +++++++ Part 1 Func 5 +++++++++++
 
 ;; Widget String -> Widget or false
 ;; Finds widget by name
