@@ -137,26 +137,36 @@
 ;; ++++++++++++++ Question 3 +++++++++++++++
 
 ;; widget Natural -> (listof widget)
-;; This function will examine the widget, as well as all of the subwidgets used to manufacture it, and return all whose price is lower than the specified natural.
+;; Takes in a widget and an amount, will returns all (sub)widgets whose price is less than the amount
+
+(check-expect (find-widget-cheaper-than Wire 5) empty)
+(check-expect (find-widget-cheaper-than Chain 8) (list Chain))
+(check-expect (find-widget-cheaper-than Beads 12) (list Beads Glass))
+(check-expect (find-widget-cheaper-than Jewelry 5) (list Necklace Chain Pendant Glass))
+
+;; Template taken from widget
+
 (define (find-widget-cheaper-than w price)
   (cond [(< (widget-price w) price)
          (cons w (find-widgets-cheaper-than (widget-parts w) price))]
         [else (find-widgets-cheaper-than (widget-parts w) price)]))
 
 ;; (listof widget) Natural -> (listof widget)
-;; Runs find-widget-cheaper-than recursively for all items in a list of widgets
+;; Given a (listof widget) and an amount, will return all (sub)widgets in the list whose price is less than the amount
+
+(check-expect (find-widgets-cheaper-than empty 5) empty)
+(check-expect (find-widgets-cheaper-than (list Wire) 5) empty)
+(check-expect (find-widgets-cheaper-than (list Wire) 100) (list Wire))
+(check-expect (find-widgets-cheaper-than (list Wire Cord) 15) (list Wire Cord Wire))
+(check-expect (find-widgets-cheaper-than (list Jewelry Cord) 5) (list Necklace Chain Pendant Glass))
+
+;; Template taken from (listof Widget)
+
 (define (find-widgets-cheaper-than low price)
   (cond [(empty? low) empty]
         [else 
          (append (find-widget-cheaper-than (first low) price)
                  (find-widgets-cheaper-than (rest low) price))]))
-
-;; Test cases
-(check-expect (find-widget-cheaper-than Wire 5) empty)
-(check-expect (find-widget-cheaper-than Jewelry 5) (list Necklace Chain Pendant Glass))
-(check-expect (find-widget-cheaper-than Chain 8) (list Chain))
-(check-expect (find-widget-cheaper-than Beads 12) (list Beads Glass))
-
 
 ;; ++++++++++++++ Question 4 +++++++++++++++
 
