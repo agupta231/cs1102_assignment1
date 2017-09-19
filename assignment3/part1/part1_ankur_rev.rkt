@@ -170,22 +170,55 @@
 
 ;; ++++++++++++++ Question 4 +++++++++++++++
 
-;; !!! Make new check-expects
+;; Widget natural -> (listof Widget)
+;; Given a widget and a cutoff, will return all subwidgets who have >= one subwidget whose quanity is less than the cutoff
+
+(check-expect (find-widget-hard-make Wire 5) empty)
+(check-expect (find-widget-hard-make Wire 1) empty)
+(check-expect (find-widget-hard-make Cord 5) empty)
+(check-expect (find-widget-hard-make Cell 10) (list Buttons))
 (check-expect (find-widget-hard-make Jewelry 5) (list  Necklace))
 (check-expect (find-widget-hard-make Jewelry 10) (list  Necklace Bracelet Beads))
 
 (define (find-widget-hard-make w c)
   (n-list--loe (widget-parts w) c))
 
+;; widget natural -> (listof Widget)
+;; given a widget and a cutoff, will deteremine if the current widget is "hard-to-make", and if so, return
+;;     a list of the widget and all of the subwidgets that are hard-to-make
+
+(check-expect (n-list--e Wire 5) empty)
+(check-expect (n-list--e Cord 4) (list Cord))
+(check-expect (n-list--e Cell 10) (list Cell Buttons))
+
+;; Template taken from Widget
+
 (define (n-list--e w c)
   (cond [(subs-hard-to-make?--loe (widget-parts w) c) (cons w (n-list--loe (widget-parts w) c))]
         [else
          (n-list--loe (widget-parts w) c)]))
 
+;; (listof Widget) natural -> (listof Widget)
+;; Given a list of widgets and a cutoff, function will return all widgets and subwidgets in the list that
+;;     are "hard-to-make"
+
+(check-expect (n-list--loe empty 5) empty)
+(check-expect (n-list--loe (list Wire) 5) empty)
+(check-expect (n-list--loe (list Cord) 4) (list Cord))
+(check-expect (n-list--loe (list Cell Cord) 10) (list Cell Buttons Cord))
+
+;; Template taken from (listof Widget)
+
 (define (n-list--loe loe c)
   (cond [(empty? loe) empty]
         [else
          (append (n-list--e (first loe) c) (n-list--loe (rest loe) c))]))
+
+;; widget natural -> boolean
+;; Given a widget, will determine if a widgets subs (and by transistivity, the widget itself) are "hard-to-make".
+;;     If so, returns true, otherwise, returns false)
+
+(check-expect (subs-hard-to-make? 
 
 (define (subs-hard-to-make? w c)
   (cond [(empty? (widget-parts w)) (< (widget-quantity w) c)]
