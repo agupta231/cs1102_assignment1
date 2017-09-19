@@ -251,16 +251,10 @@
      (widget-name x))))
 
 
-;; Sort function 
-
-
-
-
-
-
-
-
-
+;; +++++++ Sort Function ++++++++++++
+;; widget (X X -> boolean) -> (listof widget)
+;; Given a widget, this function will sort the widget and all of it's associated sub widges based on the
+;;    given comparision function
 
 (check-expect (sort-widgets Wire (lambda (x y) (< (widget-quantity x) (widget-quantity y)))) (list Wire))
 (check-expect (sort-widgets Cord (lambda (x y) (> (widget-quantity x) (widget-quantity y)))) (list Wire Cord))
@@ -289,3 +283,20 @@
                    (find-elements fn p (rest loe))]))]
 
     (sort-list (gen-list--e wid))))
+
+;; widget -> widget
+;; Given a widget, this function will search all the widget and it's subwidgets and return the one with
+;;     the longest name
+;;
+;; Due to the nature of the sort function, if two widgets have the same number of characters, the higher ranking
+;;    widget will be chosen. IE, for cord & wire, cord will be the output, as it is ranked higher
+
+(check-expect (longest-name Wire) Wire)
+(check-expect (longest-name Telephone) Telephone)
+(check-expect (longest-name Cord) Cord)
+
+(define (longest-name wid)
+  (first (sort-widgets
+          wid
+          (lambda (x y)
+            (< (string-length (widget-name x)) (string-length (widget-name y)))))))
