@@ -2134,7 +2134,7 @@
 111 150 -1 -1 2 1 #"\0"
 0 -1 1 #"\0"
 1.0 0 -1 -1 -1 -1 -1 -1 0 0 0 0 0 1 0.0 0.0 0.0 0.0 0.0 0.0 255 165 0 63
-111 150 -1 -1           0 636 0 4 3 85
+111 150 -1 -1           0 631 0 4 3 85
 (
  #";; The first three lines of this file were inserted by DrRacket. The"
  #"y record metadata"
@@ -2214,13 +2214,11 @@
 0 0 17 3 6 #" Head:"
 0 0 17 3 17 #"  \"Hey! You said "
 0 0 17 3 3 #"we'"
-0 0 17 3 3 #"re "
-0 0 17 3 18 #"not allowed to use"
+0 0 17 3 21 #"re not allowed to use"
 0 0 24 29 1 #"\n"
 0 0 17 3 5 #"; the"
 0 0 17 3 1 #" "
-0 0 17 3 4 #"list"
-0 0 17 3 46 #" template, how come you're allowed to use it?\""
+0 0 17 3 50 #"list template, how come you're allowed to use it?\""
 0 0 24 29 1 #"\n"
 0 0 24 29 1 #"\n"
 0 0 17 3 62
@@ -2301,8 +2299,7 @@
 0 0 17 3 5 #"extra"
 0 0 17 3 4 #" set"
 0 0 17 3 1 #" "
-0 0 17 3 2 #"of"
-0 0 17 3 24 #" parens on the second to"
+0 0 17 3 26 #"of parens on the second to"
 0 0 24 29 1 #"\n"
 0 0 17 3 13 #"; last line!\""
 0 0 24 29 1 #"\n"
@@ -2322,8 +2319,7 @@
 0 0 17 3 2 #"'s"
 0 0 17 3 1 #" "
 0 0 17 3 3 #"the"
-0 0 17 3 1 #" "
-0 0 17 3 32 #"tricky part.  However, I'll also"
+0 0 17 3 33 #" tricky part.  However, I'll also"
 0 0 24 29 1 #"\n"
 0 0 17 3 46 #"; give you an example of how to use the code.\""
 0 0 24 29 1 #"\n"
@@ -2602,7 +2598,6 @@
 0 0 21 3 1 #"5"
 0 0 24 3 2 #") "
 0 0 17 3 49 #"; someone senior told me this constant might help"
-0 0 24 29 1 #"\n"
 0 0 24 29 1 #"\n"
 0 0 24 29 1 #"\n"
 0 0 17 3 20 #";; Natural -> String"
