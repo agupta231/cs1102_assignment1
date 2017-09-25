@@ -28,4 +28,16 @@
              (make-bst (bst-widget BST) (insert w (bst-left BST)) (bst-right BST)))]))
 
 ;; (X X -> Boolean) (Widget -> X) BST -> BST
-;
+;; Given a list of widgets, will insert all of widgets into the provided BST. the values
+;;      will be order by the inputted order function, in which the values inputted into the
+;;      order function will given by the value function
+
+(define insert-all (order value low bst)
+  (foldr 
+	(lambda 
+	  (w b)
+	  (insert 
+		(lambda (x y)
+		  ))) 
+	bst 
+	low))
