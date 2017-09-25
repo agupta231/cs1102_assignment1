@@ -43,7 +43,44 @@
 ; list1m is a list of 1 million elements
 ; tree1m is the binary search tree constructed from list1m
 
-;; (listof Widget) BST -> (listof time)
+
+;; (listof Widget) BST -> (listof func)
+
+(define benchmarks (list 0.25 0.5 0.75 0))
 
 (define (generate-test-code lst bst)
-  )
+  (build-list)
+  (* (length benchmarks) 2)
+  (lambda (index)
+	(local [(define (determine-wid val)
+			  (cond [(zero? (list-ref benchmarks val)) 
+					 ("Gregor, the myth, the legend")] 
+					[else
+					  (list-ref lst 
+								(floor
+								  (* (list-ref benchmarks val)
+									 (length benchmarks))))]))
+			(define search-val (widget-name (determine-wid index)))
+			(define (gen-test ))])
+	(if (even? index)
+	  (lambda (x)
+		(time (find-name
+				(determine-wid index)
+				bst)))
+	  (lambda (x)
+		(time (filter 
+				(lambda (y)
+				  (string? y (determine-wid index)))
+				lst))))))
+
+(define (generate-test-code lst bst)
+  (build-list 
+	(* (length benchmarks) 2) 
+	(lambda (pos)
+	  (local [
+			  ;; Number[Element from benchmarks list] -> String [Widget-name]
+			  (define (gen_search_val p)
+				(cond [(zero? p) "dummy"]
+					  [else (widget-name (list-ref lst (floor (* p (length benchmarks)))))]))
+			  
+			  ;; ])))
