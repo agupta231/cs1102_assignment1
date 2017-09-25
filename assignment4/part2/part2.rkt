@@ -20,7 +20,7 @@
 ;; Given a widget and BST, will return a BST with the widget inserted in the proper location
 ;;     as dicated by the inutted comparison function
 
-(define insert (compare w bst)
+(define (insert compare w bst)
  (cond [(false?  BST) (make-bst w false false)]
         [else
          (if (compare w bst)
@@ -32,12 +32,12 @@
 ;;      will be order by the inputted order function, in which the values inputted into the
 ;;      order function will given by the value function
 
-(define insert-all (order value low bst)
+(define (insert-all order value low bst)
   (foldr 
-	(lambda 
-	  (w b)
-	  (insert 
-		(lambda (x y)
-		  ))) 
+	(lambda (w b) 
+	  (local 
+		[(define (order-abs wid bst) 
+		   (order (value wid) (value (bst-widget bst))))]
+		(insert order-abs w b))) 
 	bst 
 	low))
