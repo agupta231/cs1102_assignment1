@@ -55,6 +55,8 @@
 (check-expect (find eq_strs lt_strs "9" BST5) (make-widget "9" 1 15))
 (check-expect (find eq_strs lt_strs "3" BST11) (make-widget "3" 13 18))
 (check-expect (find eq_strs lt_strs "459" BST6) false)
+(check-expect (find eq_num lt_num 13 (insert-all < widget-quantity L1 false))
+              (make-widget "3" 13 18)) 
 
 (define (find eq lt value bst)
   (cond [(false? bst) false]
@@ -91,6 +93,13 @@
 ;; Given a list of widgets, will insert all of widgets into the provided BST. the values
 ;;      will be order by the inputted order function, in which the values inputted into the
 ;;      order function will given by the value function
+
+
+(check-expect (insert-all string<=? widget-name empty false) false)
+(check-expect (insert-all string<=? widget-name (list (make-widget "1" 8 10)) BST5)
+              (make-bst (make-widget "9"   1 15) (make-bst (make-widget "1" 8 10) false false) false))
+(check-expect (insert-all < widget-quantity (list (make-widget "1" 8 10)) BST5)
+              (make-bst (make-widget "9" 1 15) false (make-bst (make-widget "1" 8 10) false false)))
 
 (define (insert-all order value low bst)
   (foldr 
