@@ -135,7 +135,7 @@
 (define benchmarks (list 0.25 0.5 0.75 0))
 
 (define null-wid (make-widget "Gregor, the myth, the lengend" 420 1738))
-(define list100k (random-widgets 10 1000))
+(define list100k (random-widgets 1000000 10000000))
 (define bst100k (insert-all list100k false))
 
 (define (generate-test-code lst bst)
@@ -143,13 +143,12 @@
    (* (length benchmarks) 2)
    (lambda (list_pos)
      (local [(define (determine-wid val)
-               (cond [(zero? (list-ref benchmarks
-                                       (floor
-                                        (* (list-ref benchmarks (floor (/ val 2)))
-                                           (length benchmarks))))) 
+               (cond [(zero? (floor
+                              (* (list-ref benchmarks (floor (/ val 2)))
+                                 (length benchmarks)))) 
                       null-wid] 
                      [else
-                      (list-ref lst 
+                      (list-ref list100k 
                                 (floor
                                  (* (list-ref benchmarks (floor (/ val 2)))
                                     (length benchmarks))))]))
@@ -164,3 +163,16 @@
                               (string=? search-val (widget-name y)))
                             lst)))))]
        (gen-test list_pos)))))
+
+
+#;
+(define (determine-wid val)
+  (cond [(zero? (floor
+                 (* (list-ref benchmarks (floor (/ val 2)))
+                    (length benchmarks)))) 
+         null-wid] 
+        [else
+         (list-ref list100k 
+                   (floor
+                    (* (list-ref benchmarks (floor (/ val 2)))
+                       (length benchmarks))))]))
