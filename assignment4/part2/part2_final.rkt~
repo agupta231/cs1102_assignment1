@@ -1,0 +1,42 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname part2_final) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;; (value BST -> Boolean) (value BST -> Boolean) value bst -> widget | false
+;; Given a value, and BST, will return a widget whose value is the same as the one inputted.
+;;    This is done by the equality function and the less than function to deteremine how the 
+;;    tree should be traversed
+
+(define (find eq lt value bst)
+  (cond [(false? bst) false]
+        [else
+         (cond [(eq value BST) (bst-widget bst)]
+               [(lt value BST)
+                (find eq lt value (bst-left bst))]
+               [else
+                (find eq lt value (bst-right bst))])]))
+
+;; (widget BST -> Boolean) Widget BST -> BST
+;; Given a widget and BST, will return a BST with the widget inserted in the proper location
+;;     as dicated by the inutted comparison function
+
+(define (insert compare w bst)
+  (cond [(false?  BST) (make-bst w false false)]
+        [else
+         (if (compare w bst)
+             (make-bst (bst-widget BST) (bst-left BST) (insert w (bst-right BST)))
+             (make-bst (bst-widget BST) (insert w (bst-left BST)) (bst-right BST)))]))
+
+;; (X X -> Boolean) (Widget -> X) BST -> BST
+;; Given a list of widgets, will insert all of widgets into the provided BST. the values
+;;      will be order by the inputted order function, in which the values inputted into the
+;;      order function will given by the value function
+
+(define (insert-all order value low bst)
+  (foldr 
+   (lambda (w b) 
+     (local 
+       [(define (order-abs wid bst) 
+          (order (value wid) (value (bst-widget bst))))]
+       (insert order-abs w b))) 
+   bst 
+   low))
