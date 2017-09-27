@@ -131,7 +131,7 @@
 
 ;; *** this function permits you to make both legal and illegal moves
 ;; *** you do not need to use this function and probably should not.  someone thought of a reason
-;; *** for it to exist and so i included it.  to be clear, your program is only permitted to 
+;; *** for it to exist and so I included it.  to be clear, your program is only permitted to 
 ;; *** make legal moves.
 (define (make-hypothetical-move state move)
   (local [(define (update-column turn column current move)
