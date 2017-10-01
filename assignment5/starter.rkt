@@ -34,13 +34,39 @@
 (define (gen_chains state) 
   (get_chains (get_perimeter_pieces state)))
 
+(define-struct piece (row col color))
+
 ;; State -> list
 ;; Given a state, will return a list of the positions of all of the game pieces that are on the perimeter
 ;;     of the game board
 (define (get_perimeter_pieces state) 
   (local [(define (get_pieces row col lop)
-			(cond))]
-	()))
+			  (local [(define current_piece (piece-at state row col))
+					(define right_piece (piece-at state row (add1 col)))
+					(define left_piece (piece-at state row (sub1 col)))]
+			  (cond [(not (= current_piece 0))
+					 (if (and 
+						   (or 
+							 (= right_piece 0) 
+							 (= right_piece -1)) 
+						   (or 
+							 (= left_piece 0)
+							 (= left_piece -1)))
+
+					   (get_perimeter_pieces 
+						 (add1 row) 
+						 col 
+						 (append lop (make-piece row col current_piece)))
+					   (get_perimeter_pieces
+						 0
+						 (add1 col)
+						 (append lop (make-piece row col current_piece))))]
+					[else
+					 (get_perimeter_pieces
+					   (add1 row)
+					   col
+					   lop)])))]
+	(get_pieces 0 0 empty)))
 
 ;; list -> (listOf Chains)
 ;; Given game peices, determine the chains that each piece is a part of 
