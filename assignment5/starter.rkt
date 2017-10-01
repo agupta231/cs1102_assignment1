@@ -10,6 +10,7 @@
 (define BLANK 0)
 (define ROWS 10)  
 (define COLUMNS 10) 
+(define DEFAULT-DEPTH 1)
 
 ;; state --> state
 ;; you will implement this function to make a move
@@ -21,6 +22,30 @@
 ;; you will implement this function to determine the value of a state (terminal or non-terminal)
 (define (evaluation-function state)
   (random 10))
+
+;; State -> Number
+;; Given a state, will output a number representating the state of the board 
+
+(define (evaluate_board_state state) 
+  (sum_chains (gen_chains state)))
+
+;; State -> (listof Chains)
+;; Given a state, will return a list of all of the chains
+(define (gen_chains state) 
+  (get_chains (get_perimeter_pieces state)))
+
+;; State -> list
+;; Given a state, will return a list of the positions of all of the game pieces that are on the perimeter
+;;     of the game board
+(define (get_perimeter_pieces state) 
+  (local [(define (get_pieces row col lop)
+			(cond))]
+	()))
+
+;; list -> (listOf Chains)
+;; Given game peices, determine the chains that each piece is a part of 
+; !!!
+(define (get_chains pieces) empty)
 
 ;; you must implement the above two functions as part of the asignment, but may create additional
 ;; helper functions
