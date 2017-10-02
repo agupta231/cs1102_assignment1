@@ -90,20 +90,31 @@
     (if (not (= dx 0))
         (/ (- (piece-row (chain-start ch)) (piece-row (chain-stop ch))) dx)
         -1)))
-    
 
 ;; (listOf Piece) -> (listOf Chains)
 ;; Given game peices, determine the chains that each piece is a part of 
 ; !!!
 (define (get_chains pieces board)
   (local [(define (get_chain--p peice loc)
-            (local [(define (get_endpoint p dx dy len))
-                    
-          (define (get_chain--lop loc lop)
-            (cond [(empty? lop) empty]
-                  [else
-                   (get_chain--lop (cons (get_chain--p (first lop))) (rest lop))
-                   
+			(local [(define (get_endpoint p dr dc len)
+					  (local [(define row (piece-row p))
+							  (define col (piece-col p))
+							  (define color (piece-color p))]
+						cond [(not (= (piece-at (+ row  dr) (+ col dc)) color))
+							  (list p len)]
+						[else
+						  (get_endpoint (make-piece (+ row  dr) 
+													(+ col dc) 
+													color) 
+										dr 
+										dc 
+										(add1 len))]))])
+
+			(define (get_chain--lop loc lop)
+			  (cond [(empty? lop) empty]
+					[else
+					  (get_chain--lop (cons (get_chain--p (first lop))) (rest lop))
+
 
 ;; Signature: state Natural Natural -> (ListOf Piece)
 ;; Purpose: Finds all adjacent nodes of the selected piece
