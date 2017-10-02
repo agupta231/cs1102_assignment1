@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname starter) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname |connect four starter v2|) (read-case-sensitive #t) (teachpacks ((lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "universe.rkt" "teachpack" "2htdp")) #f)))
 (require 2htdp/image)
 (require 2htdp/universe)
 
@@ -26,56 +26,47 @@
 ;; State -> Number
 ;; Given a state, will output a number representating the state of the board 
 
-#;
 (define (evaluate_board_state state) 
   (sum_chains (gen_chains state)))
 
 ;; State -> (listof Chains)
 ;; Given a state, will return a list of all of the chains
 (define (gen_chains state) 
-  (get_chains (get_perimeter_pieces (world-state-position state))))
+  (get_chains (get_perimeter_pieces state)))
 
 (define-struct piece (row col color))
-(define-struct pos (row col))
 
 ;; State -> list
 ;; Given a state, will return a list of the positions of all of the game pieces that are on the perimeter
 ;;     of the game board
 (define (get_perimeter_pieces state) 
-  (local [(define (next_row p)
-            (cond [(>= (add1 (pos-row p)) ROWS)
-                   (make-pos 0 (add1 (pos-col p)))]
-                  [else
-                   (make-pos (add1 (pos-row p)) (pos-col p))]))
-          
-          (define (get_pieces pos lop)
-            (local [(define row (pos-row pos))
-                    (define col (pos-col pos))
-                    (define current_piece (piece-at state row col))
-                    (define right_piece (piece-at state row (add1 col)))
-                    (define left_piece (piece-at state row (sub1 col)))] 
-                     (cond
-                       [(= col COLUMNS) lop]
-                       [(not (= current_piece 0))
-                        (if (or (or 
-                                  (= right_piece 0) 
-                                  (= right_piece -1)) 
-                                 (or 
-                                  (= left_piece 0)
-                                  (= left_piece -1)))
-                            
-                                   (get_pieces 
-                                    (next_row pos)
-                                    (cons (make-piece row col current_piece) lop))
+  (local [(define (get_pieces row col lop)
+			  (local [(define current_piece (piece-at state row col))
+					(define right_piece (piece-at state row (add1 col)))
+					(define left_piece (piece-at state row (sub1 col)))]
+			  (cond [(not (= current_piece 0))
+					 (if (and 
+						   (or 
+							 (= right_piece 0) 
+							 (= right_piece -1)) 
+						   (or 
+							 (= left_piece 0)
+							 (= left_piece -1)))
 
-                                   (get_pieces
-                                    (make-pos 0 (add1 col))
-                                    (cons (make-piece row col current_piece) lop)))]
-                       [else
-                        (get_pieces
-                         (next_row pos)
-                         lop)])))]
-    (get_pieces (make-pos 0 0) empty)))
+					   (get_perimeter_pieces 
+						 (add1 row) 
+						 col 
+						 (append lop (make-piece row col current_piece)))
+					   (get_perimeter_pieces
+						 0
+						 (add1 col)
+						 (append lop (make-piece row col current_piece))))]
+					[else
+					 (get_perimeter_pieces
+					   (add1 row)
+					   col
+					   lop)])))]
+	(get_pieces 0 0 empty)))
 
 ;; list -> (listOf Chains)
 ;; Given game peices, determine the chains that each piece is a part of 
@@ -94,8 +85,8 @@
 ;; returns the checker color (RED, BLACK, or BLANK) of the specified position
 ;; on the board
 (define (piece-at board row column)
-  (cond [(or (< row 0) (< column 0) (>= column COLUMNS) (>= row ROWS)) -1] ; piece outside of board
-        [else (get-nth row (get-nth column board))]))
+  (get-nth row (get-nth column board)))
+
 
 ;; Natural List --> Element
 ;; returns the nth element of a list.  for former LISP programmers learning Racket :-)
@@ -214,21 +205,21 @@
                   [(= move-x current-x) (update-column turn (first board) 0 move-y)]
                   [else (first board)])
                 (do-move (rest board) turn move-x move-y (+ 1 current-x)))]))]
-    (make-world-state
-     (do-move (world-state-position state)
-              (world-state-whose-turn state) 
-              (first move) (second move) 0)
-     (cond
-       [(= (world-state-whose-turn state) RED) BLACK]
-       [(= (world-state-whose-turn state) BLACK) RED])
-     (world-state-settings state)
-     (world-state-other-info state))))
+        (make-world-state
+         (do-move (world-state-position state)
+                  (world-state-whose-turn state) 
+                  (first move) (second move) 0)
+         (cond
+           [(= (world-state-whose-turn state) RED) BLACK]
+           [(= (world-state-whose-turn state) BLACK) RED])
+         (world-state-settings state)
+         (world-state-other-info state))))
 
 ;; you will use this function.  it takes as input the move you will make, represented as a list of X Y coordinates
 (define (make-move state move)
-  (if (member move (legal-next-moves state))
-      (make-hypothetical-move state move)
-      state))
+   (if (member move (legal-next-moves state))
+       (make-hypothetical-move state move)
+       state))
 
 ;; world-state --> list
 ;; returns all of the legal moves for the current position
@@ -338,20 +329,5 @@
    (list 0 0 0 0 0 0 0 0 0)
    (list 0 0 0 0 0 0 0 0 0)
    (list 0 0 0 0 0 0 0 0 0)))
-
-(define test-board-2
-  (list
-   ;     ROW
-   ;     0 1 2 3 4 5 6 7 8 9 
-   (list 0 0 0 0 0 0 0 0 0 0) ;0   COLMUN
-   (list 0 0 0 0 0 0 0 1 1 1) ;1
-   (list 0 0 0 0 0 0 0 0 2 1) ;2
-   (list 0 0 0 0 0 0 0 0 1 2) ;3
-   (list 0 0 0 0 0 0 0 0 0 0) ;4
-   (list 0 0 0 0 0 0 0 0 0 2) ;5
-   (list 0 0 0 0 0 0 0 0 0 0) ;6
-   (list 0 0 0 0 0 0 0 0 2 1) ;7
-   (list 0 0 0 0 0 0 0 0 0 1) ;8
-   (list 0 0 0 0 0 0 0 0 0 0))) ;9
 
 (define test-state (make-world-state test-board RED 5 empty))
