@@ -76,8 +76,8 @@
 
 (define (share-piece? ch1 ch2)
   (or (or (or (equal-piece? (chain-start ch1) (chain-start ch2))
-      (equal-piece? (chain-stop ch1) (chain-stop ch2)))
-      (equal-piece? (chain-stop ch1) (chain-start ch2)))
+              (equal-piece? (chain-stop ch1) (chain-stop ch2)))
+          (equal-piece? (chain-stop ch1) (chain-start ch2)))
       (equal-piece? (chain-start ch1) (chain-stop ch2))))
 
 (define (equal-piece? p1 p2)
@@ -96,24 +96,33 @@
 ; !!!
 (define (get_chains pieces board)
   (local [(define (get_chain--p peice loc)
-			(local [(define (get_endpoint p dr dc len)
-					  (local [(define row (piece-row p))
-							  (define col (piece-col p))
-							  (define color (piece-color p))]
-						cond [(not (= (piece-at (+ row  dr) (+ col dc)) color))
-							  (list p len)]
-						[else
-						  (get_endpoint (make-piece (+ row  dr) 
-													(+ col dc) 
-													color) 
-										dr 
-										dc 
-										(add1 len))]))])
+            (local [(define (get_endpoint p dr dc len)
+                      (local [(define row (piece-row p))
+                              (define col (piece-col p))
+                              (define color (piece-color p))]
+                        cond [(not (= (piece-at (+ row  dr) (+ col dc)) color))
+                              (list p len)]
+                        [else
+                         (get_endpoint (make-piece (+ row  dr) 
+                                                   (+ col dc) 
+                                                   color) 
+                                       dr 
+                                       dc 
+                                       (add1 len))]))
+                    
+                    (define (gen_chain end1 end2)
+                      ...)]
+              (list
+               (gen_chain (get_endpoint piece -1 0 0) (get_endpoint piece 1 0 0))
+               (gen_chain (get_endpoint piece 0 -1 0) (get_endpoint piece 0 1 0))
+               (gen_chain (get_endpoint piece -1 1 0) (get_endpoint piece 1 -1 0))
+               (gen_chain (get_endpoint piece 1 1 0) (get_endpoint piece -1 -1 0)))))
+            
 
-			(define (get_chain--lop loc lop)
-			  (cond [(empty? lop) empty]
-					[else
-					  (get_chain--lop (cons (get_chain--p (first lop))) (rest lop))
+            (define (get_chain--lop loc lop)
+              (cond [(empty? lop) empty]
+                    [else
+                     (get_chain--lop (append (get_chain--p (first lop))) (rest lop)
 
 
 ;; Signature: state Natural Natural -> (ListOf Piece)
