@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname connect4V2) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname |connect four starter|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;; Jack Gerulskis and Ankur
 
 (require 2htdp/image)
@@ -40,15 +40,14 @@
 (define RED 1) 
 (define BLACK 2)
 (define BLANK 0)
-(define ROWS 4)  
-(define COLUMNS 4)
+(define ROWS 9)  
+(define COLUMNS 9)
 
 ;; Created
 (define OFF-BOARD -1)
 (define WINNING-MOVE 1000000000)
 (define MID-COL (ceiling (/ COLUMNS 2)))
 (define COL-MAX (sqr(- COLUMNS MID-COL)))
-(define DEFAULT-DEPTH 2)
 
 ;===============================================================
 
@@ -88,29 +87,7 @@
 ;; Purpose: Makes best move for computer
 (define (computer-moves state)
   (local [(define moves (legal-next-moves state))]
-    (minmax state)))
-
-;(argmax evaluation-function (map (lambda (x) (make-move state x)) moves))
-
-(define (minmax state)
-  (local [(define (_min sub_state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (local [(define optimal_board (argmin evaluation-function (map (lambda (x) (make-move state x)) (legal-next-moves state))))]
-                     (list
-                      (evaluation-function (optimal_board))
-                      optimal_board))]
-                  [else
-                   (argmin (lambda (x) (first x)) (map (lambda (x) (_max (make-move sub_state x) (add1 depth))) (legal-next-moves sub_state)))]))
-          
-          (define (_max sub_state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (local [(define optimal_board (argmax evaluation-function (map (lambda (x) (make-move state x)) (legal-next-moves state))))]
-                     (list
-                      (evaluation-function (optimal_board))
-                      optimal_board))]
-                  [else
-                   (argmax (lambda (x) (first x)) (map (lambda (x) (_min (make-move sub_state x) (add1 depth))) (legal-next-moves sub_state)))]))]
-    (rest (_max state 0))))
+    (argmax evaluation-function (map (lambda (x) (make-move state x)) moves))))
 
 ;; Signature: state --> Number
 ;; Purpose: Evaluates a single boards state
@@ -158,28 +135,27 @@
                     (define current_piece (piece-at state row col))
                     (define right_piece (piece-at state row (add1 col)))
                     (define left_piece (piece-at state row (sub1 col)))] 
-              (cond
-                [(= col COLUMNS) lop]
-                [(not (= current_piece 0))
-                 (if (or (or 
-                          (= right_piece 0) 
-                          (= right_piece -1)) 
-                         (or 
-                          (= left_piece 0)
-                          (= left_piece -1)))
+                     (cond
+                       [(= col COLUMNS) lop]
+                       [(not (= current_piece 0))
+                        (if (or (or 
+                                  (= right_piece 0) 
+                                  (= right_piece -1)) 
+                                 (or 
+                                  (= left_piece 0)
+                                  (= left_piece -1)))
                             
-                     (get_pieces 
-                      (next_row pos)
-                      (cons (make-piece row col current_piece) lop))
+                                   (get_pieces 
+                                    (next_row pos)
+                                    (cons (make-piece row col current_piece) lop))
 
-                     (get_pieces
-                      (make-pos 0 (add1 col))
-(cons (make-piece row col current_piece) lop)))]
-;                      lop))]
-                [else
-                 (get_pieces
-                  (next_row pos)
-                  lop)])))]
+                                   (get_pieces
+                                    (make-pos 0 (add1 col))
+                                    (cons (make-piece row col current_piece) lop)))]
+                       [else
+                        (get_pieces
+                         (next_row pos)
+                         lop)])))]
     (get_pieces (make-pos 0 0) empty)))
 
 ;; Signature: ListOfChains -> Number
@@ -242,8 +218,8 @@
 ;; Test Cases:!!!
 (define (share-piece? ch1 ch2)
   (or (or (or (equal-piece? (chain-start ch1) (chain-start ch2))
-              (equal-piece? (chain-stop ch1) (chain-stop ch2)))
-          (equal-piece? (chain-stop ch1) (chain-start ch2)))
+      (equal-piece? (chain-stop ch1) (chain-stop ch2)))
+      (equal-piece? (chain-stop ch1) (chain-start ch2)))
       (equal-piece? (chain-start ch1) (chain-stop ch2))))
 
 ;; Signature: Piece Piece -> Boolean
@@ -266,16 +242,15 @@
 ;; Notes:     List is finite in size and will return pieces that are not on the
 ;;            board as having color of -1 (OFF-BOARD). See piece-at
 ;; Test Cases:!!!
-(define (get-adjacent-nodes state row col)
-  (local [(define board (world-state-position state))]
-    (list (make-piece (- row 1) (- col 1) (piece-at board (- row 1) (- col 1)))
-          (make-piece (- row 1) col (piece-at board (- row 1) col))
-          (make-piece (- row 1) (+ col 1) (piece-at board (- row 1) (+ col 1)))
-          (make-piece row (- col 1) (piece-at board row (- col 1)))
-          (make-piece row (+ col 1) (piece-at board row (+ col 1)))
-          (make-piece (+ row 1) (- col 1) (piece-at board (+ row 1) (- col 1)))
-          (make-piece (+ row 1) col (piece-at board (+ row 1) col))
-          (make-piece (+ row 1) (+ col 1) (piece-at board (+ row 1) (+ col 1)))))) 
+(define (get-adjacent-nodes board row col)
+  (list (make-piece (- row 1) (- col 1) (piece-at board (- row 1) (- col 1)))
+        (make-piece (- row 1) col (piece-at board (- row 1) col))
+        (make-piece (- row 1) (+ col 1) (piece-at board (- row 1) (+ col 1)))
+        (make-piece row (- col 1) (piece-at board row (- col 1)))
+        (make-piece row (+ col 1) (piece-at board row (+ col 1)))
+        (make-piece (+ row 1) (- col 1) (piece-at board (+ row 1) (- col 1)))
+        (make-piece (+ row 1) col (piece-at board (+ row 1) col))
+        (make-piece (+ row 1) (+ col 1) (piece-at board (+ row 1) (+ col 1))))) 
 
 ;==============================================================
 
