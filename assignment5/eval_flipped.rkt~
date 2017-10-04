@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname eval_flipped) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname custom_chains) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 ;; Jack Gerulskis and Ankur
 
 (require 2htdp/image)
@@ -189,56 +189,7 @@
 
 ;; Signature:  ws -> ws
 ;; Purpose:    Given a world state, will determine (to depth level DEFAULT-DEPTH) what will be the optimal move for the CPU
-
-(check-expect (world-state-position (minmax_ok (make-world-state
-               (list
-                (list 0 0 0 0 0 0 1 1 1)
-                (list 0 0 0 0 0 0 0 2 2)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0))
-               2
-               5
-               evaluation-function-complex)))
-               (list
-                (list 0 0 0 0 0 2 1 1 1)
-                (list 0 0 0 0 0 0 0 2 2)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)))
-
-(check-expect (world-state-position (minmax_ok (make-world-state
-               (list
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 2)
-                (list 0 0 0 0 0 0 0 2 1)
-                (list 0 0 0 0 0 0 2 1 1)
-                (list 0 0 0 0 0 0 1 2 1)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0))
-               2
-               5
-               evaluation-function-complex)))
-               (list
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 2)
-                (list 0 0 0 0 0 0 0 2 1)
-                (list 0 0 0 0 0 0 2 1 1)
-                (list 0 0 0 0 0 2 1 2 1)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)))
+;; Test Cases: !!!
 
 (define (minmax_ok state)
   (local [(define evaluation-function (world-state-other-info state))
@@ -246,10 +197,10 @@
           ;; Signature:  ws -> ws | Number
           ;; Purpose:    Given a world state, will try to minimize the potential outcomes of the world state. If the function is called
           ;;             in the top level (depth 0), it will return a ws, otherwise it will return a minimized evaluation function value
-          
+          ;; Test Cases: !!!
           (define (_min sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
-                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
+				   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
                   [(= depth 0)
                    (argmin
                     (lambda (sub-sub-state)
@@ -264,11 +215,7 @@
           ;; Signature:  ws -> ws | Number
           ;; Purpose:    Given a world state, will try to maximize the potential outcomes of the world state. If the function is called
           ;;             in the top level (depth 0), will return a ws, otherwise it will return a maximized evaluation function value
-          ;;
-          ;; NOTE TO THE TA: This function will have some untested code because it is future-proof in the way that the user can decide
-          ;;                 to either make it min-then-max or max-then-min. All that you need to do is to replace the _min in the tramp
-          ;;                 function to a _max, and you will be off to the races!
-          
+          ;; Test Cases: !!!
           (define (_max sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
                    (apply max (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
@@ -280,7 +227,7 @@
                   [else
                    (apply max (map
                                (lambda (sub-sub-state)
-                                 (_min sub-sub-state (add1 depth)))
+                                     (_min sub-sub-state (add1 depth)))
                                (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
     (_min state 0)))
 
@@ -290,13 +237,11 @@
 ;;             board for the human.
 
 (check-expect (evaluation-function-complex empty-state) 0)
-(check-expect (> (evaluation-function-complex test-state-3)
-                 (evaluation-function-complex test-state-2))
-              true)
+(check-expect (evaluation-function-complex empty-state) 0)
 
 (define (evaluation-function-complex state)
   (local [(define board (world-state-position state))]
-    (count-chains (get_chains (get_perimeter_pieces board) board))))
+    (+ 0 (count-chains (get_chains (get_perimeter_pieces board) board)))))
 
 
 ;; Signature:  (listOf Piece) (listof (listof Number)) -> (listOf Chains)
@@ -305,17 +250,17 @@
 
 (check-expect (get_chains empty empty) empty)
 (check-expect (length (get_chains 
-                       (get_perimeter_pieces test-board-2)
-                       test-board-2)) 2)
+						(get_perimeter_pieces test-board-2)
+						test-board-2)) 2)
 
 
 (define (get_chains pieces board)
   (local [(define (get_chain--p piece loc)
             (local [
-                    ;; Signature:  Piece Integer Integer Natural -> (listof Piece Integer Boolean)
-                    ;; Purpose:    Given a piece, a direction for rows and a direction for columns, will the endpoint of that chain
-                    ;;             in that direction. Alongside just the piece, will also return the length of the chain as well 
-                    ;;             as information on whether or not that chain is open or not.
+					;; Signature:  Piece Integer Integer Natural -> (listof Piece Integer Boolean)
+					;; Purpose:    Given a piece, a direction for rows and a direction for columns, will the endpoint of that chain
+					;;             in that direction. Alongside just the piece, will also return the length of the chain as well 
+					;;             as information on whether or not that chain is open or not.
 					
                     (define (get_endpoint p dr dc len)
                       (local [(define row (piece-row p))
@@ -335,9 +280,9 @@
                                              (add1 len))])))
                     
                     ; Piece Piece -> (listof Chain)
-                    ;; Signature:  Piece Piece -> (listof Chain)
-                    ;; Purpose:    Given the two endpoints, will create a chain. It is assumed that the endpoints are in the direction
-                    ;;             of the chain
+					;; Signature:  Piece Piece -> (listof Chain)
+					;; Purpose:    Given the two endpoints, will create a chain. It is assumed that the endpoints are in the direction
+					;;             of the chain
 					
                     (define (gen_chain end1 end2)
                       (cond [(and (false? (third end1)) (false? (third end2)))
@@ -346,13 +291,14 @@
                              empty]
                             [(and (= 0 (second end1)) (= 0 (second end2)))
                              empty]
+                            ;(list (make-chain (list (first end1)) 1 (piece-color (first end1))))
                             [else
                              (list (make-chain (list (first end1) (first end2))
                                                (+ 1 (second end1) (second end2))
                                                (piece-color (first end1))))]))
 
-                    ;; Signature:  Piece Piece -> Boolean
-                    ;; Purpose:    Given 2 endpoints, will make sure the chain it forms is unique. 
+					;; Signature:  Piece Piece -> Boolean
+					;; Purpose:    Given 2 endpoints, will make sure the chain it forms is unique. 
 					
                     (define (unique? end1 end2)
                       (not (ormap (lambda (chain)
@@ -366,9 +312,10 @@
                (gen_chain (get_endpoint piece -1 1 0) (get_endpoint piece 1 -1 0))
                (gen_chain (get_endpoint piece 1 1 0) (get_endpoint piece -1 -1 0)))))
 
-          ;; Signature:  (listof Chain) (listof Piece) -> (listof Chain)
-          ;; Purpose:    Given a prexisting list of chains, and a list of perimeter pieces, will iterate through the pieces and
-          ;;             add all new chains to the list of chains.
+		  ;; Signature:  (listof Chain) (listof Piece) -> (listof Chain)
+		  ;; Purpose:    Given a prexisting list of chains, and a list of perimeter pieces, will iterate through the pieces and
+		  ;;             add all new chains to the list of chains.
+		  ;; Test Cases: !!!
 		  
           (define (get_chain--lop loc lop)
             (cond [(empty? lop) loc]
@@ -404,19 +351,22 @@
 
 (define (get_perimeter_pieces state) 
   (local [
-          ;; Signature:  Piece -> Piece
-          ;; Purpose:    Will check if the current piece pointer is at the end of the board. If so, will give the outermost
-          ;;             piece in the next column over
+		  ;; Signature:  Piece -> Piece
+		  ;; Purpose:    Will check if the current piece pointer is at the end of the board. If so, will give the outermost
+		  ;;             piece in the next column over
+		  
+		  (check-expect (next_row (make-pos 0 0)) (make-pos 1 0))
+		  (check-expect (next_row (make-pos (- ROWS 1) 0)) (make-pos 0 1))
 
-          (define (next_row p)
+		  (define (next_row p)
             (cond [(>= (add1 (pos-row p)) ROWS)
                    (make-pos 0 (add1 (pos-col p)))]
                   [else
                    (make-pos (add1 (pos-row p)) (pos-col p))]))
           
-          ;; Signature:  Position (listof Pieces) Boolean -> (listof Pieces)
-          ;; Purpose:    Given a position on a board, will deteremine if the current piece is a perimeter node,
-          ;;             and will return a a list of all of the current perimeter nodes.
+		  ;; Signature:  Position (listof Pieces) Boolean -> (listof Pieces)
+		  ;; Purpose:    Given a position on a board, will deteremine if the current piece is a perimeter node,
+		  ;;             and will return a a list of all of the current perimeter nodes.
 		  
           (define (get_pieces pos lop terminate?)
             (local [(define row (pos-row pos))
@@ -462,22 +412,22 @@
 
 (check-expect (count-chains (list (make-chain 1 3 1)
                                   (make-chain 1 2 1)
-                                  (make-chain 1 2 2))) 22)
+                                  (make-chain 1 2 2))) -22)
 (check-expect (count-chains (list (make-chain 1 3 1)
                                   (make-chain 1 3 2)
                                   (make-chain 1 3 2)
                                   (make-chain 1 2 1)
-                                  (make-chain 1 2 2))) 4)
+                                  (make-chain 1 2 2))) -4)
 (check-expect (< (count-chains (list (make-chain 1 3 1)
-                                     (make-chain 1 4 2)
-                                     (make-chain 1 3 2)
-                                     (make-chain 1 2 1)
-                                     (make-chain 1 2 2))) 
-                 (count-chains (list (make-chain 1 3 1)
-                                     (make-chain 1 1 2)
-                                     (make-chain 1 3 2)
-                                     (make-chain 1 2 1)
-                                     (make-chain 1 2 2)))) true)
+									 (make-chain 1 4 2)
+									 (make-chain 1 3 2)
+									 (make-chain 1 2 1)
+									 (make-chain 1 2 2))) 
+				 (count-chains (list (make-chain 1 3 1)
+									 (make-chain 1 1 2)
+									 (make-chain 1 3 2)
+									 (make-chain 1 2 1)
+									 (make-chain 1 2 2)))) true)
 (check-expect (count-chains empty) 0)
 
 (define (count-chains Loc)
@@ -488,7 +438,7 @@
                       (+ y WINNING-MOVE))]
                  [(= (chain-color x) BLACK) (- y (* 1 (length_fun (chain-length x))))] ; CPU piece
                  [(= (chain-color x) RED) (+ y (* 2 (length_fun (chain-length x))))] ; Player piece
-                 [else y])) ; Just for error handling... Will never actually be run
+                 [else y])) ; Empty Piece
          0
          Loc))
 
