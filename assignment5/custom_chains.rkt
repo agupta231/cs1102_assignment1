@@ -14,8 +14,7 @@
 ;; settings and other-info are future functionality
 
 (define-struct chain (endpoints length color))
-;; start is a piece
-;; stop is a piece
+;; endpoints is a (listof piece)
 ;; length is the length of the chain
 ;; color is which player owns the chain
 ;; Can never have two chains with same start and stop
@@ -30,7 +29,8 @@
 ;;       - -1 (does not exist)
 
 (define-struct pos (row col))
-;; Add documentation!!!
+;; Row is x coordinate of the piece
+;; Col is y coordinate of the piece
 
 ;===============================================================
 
@@ -55,6 +55,18 @@
 ;; FOR TESTING
 
 (define lop-test-case (list (make-piece 0 0 1) (make-piece 2 2 1) (make-piece 3 3 1) (make-piece 4 4 1)))
+
+(define empty-board
+  (list
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)))
 
 (define test-board-2
   (list
@@ -184,7 +196,7 @@
 
           ;; Signature:  ws -> ws | Number
           ;; Purpose:    Given a world state, will try to maximize the potential outcomes of the world state. If the function is called
-          ;;             in the top level (depth 0), it will return a ws, otherwise it will return a maximized evaluation function value
+          ;;             in the top level (depth 0), will return a ws, otherwise it will return a maximized evaluation function value
           ;; Test Cases: !!!
           (define (_max sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
@@ -297,12 +309,29 @@
 ;; Test Cases: !!!
 
 (define (get_perimeter_pieces state) 
-  (local [(define (next_row p)
+  (local [
+		  ;; Signature:  Piece -> Piece
+		  ;; Purpose:    Will check if the current piece pointer is at the end of the board. If so, will give the outermost
+		  ;;             piece in the next column over
+		  ;; Test Cases: 1. Position not at bottom -> next position down
+		  ;;             2. Position at bottom -> Row 0 next column over
+		  
+		  (check-expect (next_row (make-pos 0 0)) (make-pos 1 0))
+		  (check-expect (next_row (make-pos (- ROWS 1) 0)) (make-pos 0 1))
+
+		  (define (next_row p)
             (cond [(>= (add1 (pos-row p)) ROWS)
                    (make-pos 0 (add1 (pos-col p)))]
                   [else
                    (make-pos (add1 (pos-row p)) (pos-col p))]))
           
+		  ;; Signature:  Position (listof Pieces) Boolean -> (listof Pieces)
+		  ;; Purpose:    Given a position on a board, will deteremine if the current piece is a perimeter node,
+		  ;;             and will return a a list of all of the current perimeter nodes.
+		  ;; Test Cases: !!!
+		  
+		  (check-expect (get_pieces (make-pos 0 0) empty true))
+
           (define (get_pieces pos lop terminate?)
             (local [(define row (pos-row pos))
                     (define col (pos-col pos))
@@ -357,6 +386,14 @@
                  [else y])) ; Empty Piece
          0
          Loc))
+
+;; Signature:  Number -> Number
+;; Purpose:    Given the length of a chain, will output a value which is weighted usefulness of the length of the chain 
+;; Test Cases: Base case: 0 returns 0
+;;             Inductive Step: n -> n^2
+
+(check-expect (length_fun 0) 0)
+(check-expect (length_fun 2) 4)
 
 (define (length_fun x)
   (expt x 2))
