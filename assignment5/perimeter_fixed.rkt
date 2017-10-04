@@ -40,7 +40,7 @@
 (define RED 1) 
 (define BLACK 2)
 (define BLANK 0)
-(define ROWS 9)  
+(define ROWS 5)  
 (define COLUMNS 9)
 
 ;; Created
@@ -48,7 +48,7 @@
 (define WINNING-MOVE 1000000000)
 (define MID-COL (ceiling (/ COLUMNS 2)))
 (define COL-MAX (sqr(- COLUMNS MID-COL)))
-(define DEFAULT-DEPTH 2)
+(define DEFAULT-DEPTH 3)
 
 ;===============================================================
 
@@ -147,6 +147,7 @@
    1
    5
    '()))
+
 ;==============================================================
 
 ;; STUDENT CREATED FUNCTIONS
@@ -187,7 +188,9 @@
                   [else
                    (apply min (map
                                (lambda (sub-sub-state)
-                                 (_max sub-sub-state (add1 depth)))
+                                 (if (check-win? sub-sub-state)
+                                     WINNING-MOVE
+                                     (_max sub-sub-state (add1 depth))))
                                (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))
           (define (_max sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
@@ -200,7 +203,9 @@
                   [else
                    (apply max (map
                                (lambda (sub-sub-state)
-                                 (_min sub-sub-state (add1 depth)))
+                                 (if (check-win? sub-sub-state)
+                                     (- WINNING-MOVE)
+                                     (_min sub-sub-state (add1 depth))))
                                (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
     (_max state 0)))
  
@@ -228,19 +233,7 @@
 ;; Signature: state --> Number
 ;; Purpose: Evaluates a single boards state
 (define (evaluation-function state)
-  (cond [(check-win? (make-world-state
-                      (world-state-position state)
-                      BLACK
-                      (world-state-settings state)
-                      (world-state-other-info state)))
-         WINNING-MOVE]
-        [(check-win? (make-world-state
-                      (world-state-position state)
-                      RED
-                      (world-state-settings state)
-                      (world-state-other-info state)))
-         (- WINNING-MOVE)]
-        [else (+ 0 (count-chains (merge (find-all-chains (get_perimeter_pieces (world-state-position state)) state))))]))
+  (+ 0 (count-chains (merge (find-all-chains (get_perimeter_pieces (world-state-position state)) state)))))
 
 ;(sum-columns state)
 
