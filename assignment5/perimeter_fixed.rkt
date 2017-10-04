@@ -307,6 +307,7 @@
                   false)])))]
     (get_pieces (make-pos 0 0) empty false)))
 
+
 ;; Signature: ListOfChains -> Number
 ;; Purpose:   Finds pieces in chains and bases their values off their length
 ;; Notes:     In theory, this should invoke the AI to make an intelligent

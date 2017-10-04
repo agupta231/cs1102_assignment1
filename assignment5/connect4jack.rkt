@@ -96,33 +96,43 @@
 ; !!!
 (define (get_chains pieces board)
   (local [(define (get_chain--p peice loc)
-            (local [(define (get_endpoint p dr dc len)
+            (local [; Piece Integer Integer Len -> list(piece int open?)
+                    (define (get_endpoint p dr dc len)
                       (local [(define row (piece-row p))
                               (define col (piece-col p))
-                              (define color (piece-color p))]
-                        cond [(not (= (piece-at (+ row  dr) (+ col dc)) color))
-                              (list p len)]
-                        [else
-                         (get_endpoint (make-piece (+ row  dr) 
-                                                   (+ col dc) 
-                                                   color) 
-                                       dr 
-                                       dc 
-                                       (add1 len))]))
+                              (define color (piece-color p))
+                              (define next_piece (piece-at (+ row  dr) (+ col dc)))]
+                        (cond [(= next_piece 0)
+                               (list p len true)]
+                              [(not (= next_piece color))
+                               (list p len false)]
+                              [else
+                               (get_endpoint (make-piece (+ row  dr) 
+                                                         (+ col dc) 
+                                                         color) 
+                                             dr 
+                                             dc 
+                                             (add1 len))])))
                     
                     (define (gen_chain end1 end2)
-                      ...)]
-              (list
+                      (cond [(and (false? (third end1)) (false? (third end2)))
+                             empty]
+                            [(unique? end1 end2)
+                             empty]
+                            [(and (= 0 (second end1)) (= 0 (second end1)))
+                             (list (make-chain ]
+                            
+              (append 
                (gen_chain (get_endpoint piece -1 0 0) (get_endpoint piece 1 0 0))
                (gen_chain (get_endpoint piece 0 -1 0) (get_endpoint piece 0 1 0))
                (gen_chain (get_endpoint piece -1 1 0) (get_endpoint piece 1 -1 0))
                (gen_chain (get_endpoint piece 1 1 0) (get_endpoint piece -1 -1 0)))))
             
 
-            (define (get_chain--lop loc lop)
-              (cond [(empty? lop) empty]
-                    [else
-                     (get_chain--lop (append (get_chain--p (first lop))) (rest lop)
+          (define (get_chain--lop loc lop)
+            (cond [(empty? lop) empty]
+                  [else
+                   (get_chain--lop (append (get_chain--p (first lop))) (rest lop))]))]))
 
 
 ;; Signature: state Natural Natural -> (ListOf Piece)
@@ -145,7 +155,7 @@
 ;; whose-turn is the player who is about to move
 ;; settings and other-info are future functionality
 
-(define-struct chain (start stop length color))
+(define-struct chain (endpoints length color))
 ;; start is a piece
 ;; stop is a piece
 ;; length is the length of the chain

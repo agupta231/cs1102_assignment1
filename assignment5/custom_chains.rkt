@@ -151,14 +151,24 @@
 
 ;; STUDENT CREATED FUNCTIONS
 
-;; Signature: state --> state
+;; Signature: state -> state
 ;; Purpose: Makes best move for computer
 
 (define (computer-moves state)
   (minmax_ok state))
 
+
+;; Signature:  ws -> ws
+;; Purpose:    Given a world state, will determine (to depth level DEFAULT-DEPTH) what will be the optimal move for the CPU
+;; Test Cases: !!!
+
 (define (minmax_ok state)
-  (local [(define (_min sub-state depth)
+  (local [
+          ;; Signature:  ws -> ws | Number
+          ;; Purpose:    Given a world state, will try to minimize the potential outcomes of the world state. If the function is called
+          ;;             in the top level (depth 0), it will return a ws, otherwise it will return a minimized evaluation function value
+          ;; Test Cases: !!!
+          (define (_min sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
                    (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
                   [(= depth 0)
@@ -171,6 +181,11 @@
                                (lambda (sub-sub-state)
                                  (_max sub-sub-state (add1 depth)))
                                (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))
+
+          ;; Signature:  ws -> ws | Number
+          ;; Purpose:    Given a world state, will try to maximize the potential outcomes of the world state. If the function is called
+          ;;             in the top level (depth 0), it will return a ws, otherwise it will return a maximized evaluation function value
+          ;; Test Cases: !!!
           (define (_max sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
                    (apply max (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
@@ -186,17 +201,32 @@
                                (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
     (_max state 0)))
 
+;; Signature:  ws -> Number
+;; Purpose:    Given a world state, will return a value representing how "good" the world state is.
+;;             Higher values indicate a better board for the CPU, whilst lower values indicate a better
+;;             board for the human.
+;; Test Cases: !!!
+;; !!! NEED TO FLIP THE SIGN OF THE EVAL FUNC
 
 (define (evaluation-function state)
   (local [(define board (world-state-position state))]
     (+ 0 (count-chains (get_chains (get_perimeter_pieces board) board)))))
 
-;; (listOf Piece) -> (listOf Chains)
-;; Given game peices, determine the chains that each piece is a part of 
-; !!!
+
+;; Signature:  (listOf Piece) -> (listOf Chains)
+;; Purpose:    Given game peices, determine the chains that each piece is a part of.
+;;             It is assumed (but not required) that each game piece is a perimeter node
+;; Test Cases: !!!
+
 (define (get_chains pieces board)
   (local [(define (get_chain--p piece loc)
-            (local [; Piece Integer Integer Len -> list(piece int open?)
+            (local [
+					;; Signature:  Piece Integer Integer Natural -> (listof Piece Integer Boolean)
+					;; Purpose:    Given a piece, a direction for rows and a direction for columns, will the endpoint of that chain
+					;;             in that direction. Alongside just the piece, will also return the length of the chain as well 
+					;;             as information on whether or not that chain is open or not.
+					;; Test Cases: !!!
+					
                     (define (get_endpoint p dr dc len)
                       (local [(define row (piece-row p))
                               (define col (piece-col p))
@@ -215,6 +245,11 @@
                                              (add1 len))])))
                     
                     ; Piece Piece -> (listof Chain)
+					;; Signature:  Piece Piece -> (listof Chain)
+					;; Purpose:    Given the two endpoints, will create a chain. It is assumed that the endpoints are in the direction
+					;;             of the chain
+					;; Test Cases: !!!
+					
                     (define (gen_chain end1 end2)
                       (cond [(and (false? (third end1)) (false? (third end2)))
                              empty]
@@ -228,6 +263,10 @@
                                                (+ 1 (second end1) (second end2))
                                                (piece-color (first end1))))]))
 
+					;; Signature:  Piece Piece -> Boolean
+					;; Purpose:    Given 2 endpoints, will make sure the chain it forms is unique. 
+					;; Test Cases: !!!
+					
                     (define (unique? end1 end2)
                       (not (ormap (lambda (chain)
                                     (and (member? end1 (chain-endpoints chain))
@@ -240,16 +279,23 @@
                (gen_chain (get_endpoint piece -1 1 0) (get_endpoint piece 1 -1 0))
                (gen_chain (get_endpoint piece 1 1 0) (get_endpoint piece -1 -1 0)))))
 
+		  ;; Signature:  (listof Chain) (listof Piece) -> (listof Chain)
+		  ;; Purpose:    Given a prexisting list of chains, and a list of perimeter pieces, will iterate through the pieces and
+		  ;;             add all new chains to the list of chains.
+		  ;; Test Cases: !!!
+		  
           (define (get_chain--lop loc lop)
             (cond [(empty? lop) loc]
                   [else
                    (get_chain--lop (append (get_chain--p (first lop) loc) loc) (rest lop))]))]
+
     (get_chain--lop empty pieces)))
 
 
-;; State -> list
-;; Given a state, will return a list of the positions of all of the game pieces that are on the perimeter
-;;     of the game board 
+;; Signature:  (listof (listof Number)) -> (listof Piece)
+;; Purpose:    Given the positions of a state, will return a list of all of the outside pieces that are in play
+;; Test Cases: !!!
+
 (define (get_perimeter_pieces state) 
   (local [(define (next_row p)
             (cond [(>= (add1 (pos-row p)) ROWS)
@@ -300,9 +346,6 @@
 ;;;            simaltaneuously
 ;;; Test Cases: !!!
 
-(define (length_fun x)
-  (expt x 2))
-
 (define (count-chains Loc)
   (foldr (lambda (x y)
            (cond [(= (chain-length x) 4)
@@ -310,10 +353,14 @@
                       (+ WINNING-MOVE y)
                       (- y WINNING-MOVE))]
                  [(= (chain-color x) BLACK) (+ y (length_fun (chain-length x)))] ; CPU piece
-                 [(= (chain-color x) RED) (- y (length_fun (chain-length x)))] ; Player piece
+                 [(= (chain-color x) RED) (- y (* 2 (length_fun (chain-length x))))] ; Player piece
                  [else y])) ; Empty Piece
          0
          Loc))
+
+(define (length_fun x)
+  (expt x 2))
+
 ;==============================================================
 
 ;; PREVIOUSLY CREATED FUNCTIONS
