@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-advanced-reader.ss" "lang")((modname perimeter_fixed) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname perimeter_fixed) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;; Jack Gerulskis and Ankur
 
 (require 2htdp/image)
@@ -48,7 +48,6 @@
 (define WINNING-MOVE 1000000000)
 (define MID-COL (ceiling (/ COLUMNS 2)))
 (define COL-MAX (sqr(- COLUMNS MID-COL)))
-(define DEFAULT-DEPTH 2)
 
 ;===============================================================
 
@@ -92,38 +91,6 @@
     (list 0 0 0 0 0 0 0 1 1)
     (list 0 0 0 0 0 0 0 2 1)
     (list 0 0 0 0 0 0 0 2 1)
-    (list 0 0 0 0 0 0 0 2 1)
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 0))
-   1
-   5
-   '()))
-
-(define test-state-4
-  (make-world-state
-   (list
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 2)
-    (list 0 0 0 0 0 0 0 1 1)
-    (list 0 0 0 0 0 0 0 2 1)
-    (list 0 0 0 0 0 0 0 2 1)
-    (list 0 0 0 0 0 2 2 2 2)
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 0))
-   2
-   5
-   '()))
-
-(define test-state-5
-  (make-world-state
-   (list
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 2)
-    (list 0 0 0 0 0 2 1 1 1)
-    (list 0 0 0 0 0 0 2 2 1)
-    (list 0 0 0 0 0 0 0 2 1)
     (list 0 0 0 0 0 0 0 2 2)
     (list 0 0 0 0 0 0 0 0 0)
     (list 0 0 0 0 0 0 0 0 0)
@@ -132,117 +99,21 @@
    5
    '()))
 
-(define test-state-6
-  (make-world-state
-   (list
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 2)
-    (list 0 0 0 0 0 0 0 1 1)
-    (list 0 0 0 0 0 0 0 2 1)
-    (list 0 0 0 0 0 0 2 1 1)
-    (list 0 0 0 0 0 0 1 2 2)
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 0)
-    (list 0 0 0 0 0 0 0 0 0))
-   1
-   5
-   '()))
 ;==============================================================
 
 ;; STUDENT CREATED FUNCTIONS
 
 ;; Signature: state --> state
 ;; Purpose: Makes best move for computer
-
-#;
 (define (computer-moves state)
   (local [(define moves (legal-next-moves state))]
     (argmax evaluation-function (map (lambda (x) (make-move state x)) moves))))
 
-(define (computer-moves state)
-  (minmax_ok state))
-
-(define (minmax_bad state)
-  (local [(define (_min sub-state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (argmin evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-                  [else
-                   (argmin (lambda (s) (evaluation-function (_max s (add1 depth)))) (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]))
-          (define (_max sub-state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (argmax evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-                  [else
-                   (argmax (lambda (s) (evaluation-function (_min s (add1 depth)))) (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]))]
-    (_max state 0)))
-
-(define (minmax_ok state)
-  (local [(define (_min sub-state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
-                  [(= depth 0)
-                   (argmin
-                    (lambda (sub-sub-state)
-                      (_max sub-sub-state (add1 depth)))
-                    (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-                  [else
-                   (apply min (map
-                               (lambda (sub-sub-state)
-                                 (_max sub-sub-state (add1 depth)))
-                               (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))
-          (define (_max sub-state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (apply max (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
-                  [(= depth 0)
-                   (argmax
-                    (lambda (sub-sub-state)
-                      (_min sub-sub-state (add1 depth)))
-                    (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-                  [else
-                   (apply max (map
-                               (lambda (sub-sub-state)
-                                 (_min sub-sub-state (add1 depth)))
-                               (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
-    (_max state 0)))
- 
-#;
-(define (minmax state)
-  (local [(define (_min sub_state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (local [(define optimal_board (argmin evaluation-function (map (lambda (x) (make-move sub_state x)) (legal-next-moves sub_state))))]
-                     (list
-                      (evaluation-function optimal_board)
-                      optimal_board))]
-                  [else
-                   (argmin (lambda (x) (first x)) (map (lambda (x) (_max (make-move sub_state x) (add1 depth))) (legal-next-moves sub_state)))]))
-          
-          (define (_max sub_state depth)
-            (cond [(= depth DEFAULT-DEPTH)
-                   (local [(define optimal_board (argmax evaluation-function (map (lambda (x) (make-move sub_state x)) (legal-next-moves sub_state))))]
-                     (list
-                      (evaluation-function optimal_board)
-                      optimal_board))]
-                  [else
-                   (argmax (lambda (x) (first x)) (map (lambda (x) (_min (make-move sub_state x) (add1 depth))) (legal-next-moves sub_state)))]))]
-    (first (rest (_max state 0)))))
-
 ;; Signature: state --> Number
 ;; Purpose: Evaluates a single boards state
 (define (evaluation-function state)
-  (cond [(check-win? (make-world-state
-                      (world-state-position state)
-                      BLACK
-                      (world-state-settings state)
-                      (world-state-other-info state)))
-         WINNING-MOVE]
-        [(check-win? (make-world-state
-                      (world-state-position state)
-                      RED
-                      (world-state-settings state)
-                      (world-state-other-info state)))
-         (- WINNING-MOVE)]
-        [else (+ 0 (count-chains (merge (find-all-chains (get_perimeter_pieces (world-state-position state)) state))))]))
-
-;(sum-columns state)
+  (cond [(check-win? state) WINNING-MOVE]
+        [else (+ (sum-columns state) (count-chains (merge (find-all-chains (get_perimeter_pieces (world-state-position state)) state))))]))
 
 ;; Signature: ListOfNumbers Number -> Number
 ;; Purpose:   Sums the values of all the pieces columns
@@ -270,7 +141,7 @@
 
 ;; State -> list
 ;; Given a state, will return a list of the positions of all of the game pieces that are on the perimeter
-;;     of the game board 
+;;     of the game board
 (define (get_perimeter_pieces state) 
   (local [(define (next_row p)
             (cond [(>= (add1 (pos-row p)) ROWS)
@@ -299,14 +170,14 @@
                       (cons (make-piece row col current_piece) lop) true)
 
                      (if terminate?
-                         (get_pieces
-                          (make-pos 0 (add1 col))
-                          lop
-                          false)
-                         (get_pieces
-                          (make-pos 0 (add1 col))
-                          (cons (make-piece row col current_piece) lop)
-                          true)))]
+                     (get_pieces
+                      (make-pos 0 (add1 col))
+                      lop
+                      false)
+                     (get_pieces
+                      (make-pos 0 (add1 col))
+                      (cons (make-piece row col current_piece) lop)
+                      true)))]
                 [else
                  (get_pieces
                   (next_row pos)
@@ -321,12 +192,9 @@
 ;;            simaltaneuously
 ;; Test Cases: !!!
 (define (count-chains Loc)
-  (foldr (lambda (x y)
-           (cond [(= (chain-color x) BLACK) (+ y (sqr (* 2 (chain-length x))))] ; CPU piece
-                 [(= (chain-color x) RED) (- y (sqr (* 2 (chain-length x))))] ; Player piece
-                 [else y])) ; Empty Piece
-         0
-         Loc))
+  (foldr (lambda (x y) (cond [(= (chain-color x) BLACK) (+ y (sqr (* 2 (chain-length x))))] ; CPU piece
+                             [(= (chain-color x) RED) (- y (sqr (* 99 (chain-length x))))] ; Player piece
+                             [else y])) 0 Loc)) ; Empty Piece
 
 ;; Signature: ListOfPieces Board -> ListOfChains
 ;; Purpose:   Finds all chains on board for every piece in the list
@@ -560,7 +428,8 @@
 ;; world-state --> list
 ;; returns all of the legal moves for the current position
 (define (legal-next-moves state)
-  (local [(define (first-blank column pos)
+  (local [
+          (define (first-blank column pos)
             (cond
               [(empty? column) (- pos 1)]
               [(not (= (first column) BLANK))
