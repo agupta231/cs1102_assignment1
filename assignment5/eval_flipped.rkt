@@ -11,7 +11,8 @@
 (define-struct world-state (position whose-turn settings other-info))
 ;; position is what checkers are on the board
 ;; whose-turn is the player who is about to move
-;; settings and other-info are future functionality
+;; settings is future functionality
+;; other-info is the current evaluation function of the game
 
 (define-struct chain (endpoints length color))
 ;; endpoints is a (listof piece)
@@ -70,15 +71,31 @@
 
 (define test-board-2
   (list
-   (list 1 0 1 0 0 0 0 0 0)
-   (list 0 1 0 0 0 0 0 0 0)
-   (list 0 0 1 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 1)
+   (list 0 0 0 0 0 0 0 0 1)
    (list 0 0 0 0 0 0 0 0 0)
    (list 0 0 0 0 0 0 0 0 0)
-   (list 0 0 0 0 0 0 0 0 0)
-   (list 0 0 0 0 0 0 0 0 0)
+   (list 0 0 0 0 0 0 0 0 2)
+   (list 0 0 0 0 0 0 0 0 2)
    (list 0 0 0 0 0 0 0 0 0)
    (list 0 0 0 0 0 0 0 0 0)))
+
+(define empty-state
+  (make-world-state
+   (list
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0)
+    (list 0 0 0 0 0 0 0 0 0))
+   1
+   5
+   '()))
 
 (define test-state-2
   (make-world-state
@@ -175,14 +192,15 @@
 ;; Test Cases: !!!
 
 (define (minmax_ok state)
-  (local [
+  (local [(define evaluation-function (world-state-other-info state))
+
           ;; Signature:  ws -> ws | Number
           ;; Purpose:    Given a world state, will try to minimize the potential outcomes of the world state. If the function is called
           ;;             in the top level (depth 0), it will return a ws, otherwise it will return a minimized evaluation function value
           ;; Test Cases: !!!
           (define (_min sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
-                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
+				   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
                   [(= depth 0)
                    (argmin
                     (lambda (sub-sub-state)
@@ -217,18 +235,24 @@
 ;; Purpose:    Given a world state, will return a value representing how "good" the world state is.
 ;;             Higher values indicate a better board for the CPU, whilst lower values indicate a better
 ;;             board for the human.
-;; Test Cases: !!!
-;; !!! NEED TO FLIP THE SIGN OF THE EVAL FUNC
+
+(check-expect (evaluation-function-complex empty-state) 0)
+(check-expect (evaluation-function-complex empty-state) 0)
 
 (define (evaluation-function-complex state)
   (local [(define board (world-state-position state))]
     (+ 0 (count-chains (get_chains (get_perimeter_pieces board) board)))))
 
 
-;; Signature:  (listOf Piece) -> (listOf Chains)
+;; Signature:  (listOf Piece) (listof (listof Number)) -> (listOf Chains)
 ;; Purpose:    Given game peices, determine the chains that each piece is a part of.
 ;;             It is assumed (but not required) that each game piece is a perimeter node
-;; Test Cases: !!!
+
+(check-expect (get_chains empty empty) empty)
+(check-expect (length (get_chains 
+						(get_perimeter_pieces test-board-2)
+						test-board-2)) 2)
+
 
 (define (get_chains pieces board)
   (local [(define (get_chain--p piece loc)
@@ -237,7 +261,6 @@
 					;; Purpose:    Given a piece, a direction for rows and a direction for columns, will the endpoint of that chain
 					;;             in that direction. Alongside just the piece, will also return the length of the chain as well 
 					;;             as information on whether or not that chain is open or not.
-					;; Test Cases: !!!
 					
                     (define (get_endpoint p dr dc len)
                       (local [(define row (piece-row p))
@@ -260,7 +283,6 @@
 					;; Signature:  Piece Piece -> (listof Chain)
 					;; Purpose:    Given the two endpoints, will create a chain. It is assumed that the endpoints are in the direction
 					;;             of the chain
-					;; Test Cases: !!!
 					
                     (define (gen_chain end1 end2)
                       (cond [(and (false? (third end1)) (false? (third end2)))
@@ -277,7 +299,6 @@
 
 					;; Signature:  Piece Piece -> Boolean
 					;; Purpose:    Given 2 endpoints, will make sure the chain it forms is unique. 
-					;; Test Cases: !!!
 					
                     (define (unique? end1 end2)
                       (not (ormap (lambda (chain)
@@ -306,15 +327,33 @@
 
 ;; Signature:  (listof (listof Number)) -> (listof Piece)
 ;; Purpose:    Given the positions of a state, will return a list of all of the outside pieces that are in play
-;; Test Cases: !!!
+
+(check-expect (get_perimeter_pieces (world-state-position test-state-3))
+              (list
+               (make-piece 8 5 1)
+               (make-piece 7 5 2)
+               (make-piece 7 4 2)
+               (make-piece 7 3 2)
+               (make-piece 7 2 1)
+               (make-piece 8 1 2)))
+
+(check-expect (get_perimeter_pieces (world-state-position test-state-6))
+              (list
+               (make-piece 8 5 2)
+               (make-piece 7 5 2)
+               (make-piece 6 5 1)
+               (make-piece 6 4 2)
+               (make-piece 7 3 2)
+               (make-piece 7 2 1)
+               (make-piece 8 1 2)))
+
+(check-expect (get_perimeter_pieces (world-state-position start-state)) empty)
 
 (define (get_perimeter_pieces state) 
   (local [
 		  ;; Signature:  Piece -> Piece
 		  ;; Purpose:    Will check if the current piece pointer is at the end of the board. If so, will give the outermost
 		  ;;             piece in the next column over
-		  ;; Test Cases: 1. Position not at bottom -> next position down
-		  ;;             2. Position at bottom -> Row 0 next column over
 		  
 		  (check-expect (next_row (make-pos 0 0)) (make-pos 1 0))
 		  (check-expect (next_row (make-pos (- ROWS 1) 0)) (make-pos 0 1))
@@ -328,10 +367,7 @@
 		  ;; Signature:  Position (listof Pieces) Boolean -> (listof Pieces)
 		  ;; Purpose:    Given a position on a board, will deteremine if the current piece is a perimeter node,
 		  ;;             and will return a a list of all of the current perimeter nodes.
-		  ;; Test Cases: !!!
 		  
-		  (check-expect (get_pieces (make-pos 0 0) empty true))
-
           (define (get_pieces pos lop terminate?)
             (local [(define row (pos-row pos))
                     (define col (pos-col pos))
@@ -373,7 +409,26 @@
 ;;; Notes:     In theory, this should invoke the AI to make an intelligent
 ;;;            decision that not only blocks User chains, but creates new ones
 ;;;            simaltaneuously
-;;; Test Cases: !!!
+
+(check-expect (count-chains (list (make-chain 1 3 1)
+                                  (make-chain 1 2 1)
+                                  (make-chain 1 2 2))) -22)
+(check-expect (count-chains (list (make-chain 1 3 1)
+                                  (make-chain 1 3 2)
+                                  (make-chain 1 3 2)
+                                  (make-chain 1 2 1)
+                                  (make-chain 1 2 2))) -4)
+(check-expect (< (count-chains (list (make-chain 1 3 1)
+									 (make-chain 1 4 2)
+									 (make-chain 1 3 2)
+									 (make-chain 1 2 1)
+									 (make-chain 1 2 2))) 
+				 (count-chains (list (make-chain 1 3 1)
+									 (make-chain 1 1 2)
+									 (make-chain 1 3 2)
+									 (make-chain 1 2 1)
+									 (make-chain 1 2 2)))) true)
+(check-expect (count-chains empty) 0)
 
 (define (count-chains Loc)
   (foldr (lambda (x y)
@@ -389,8 +444,6 @@
 
 ;; Signature:  Number -> Number
 ;; Purpose:    Given the length of a chain, will output a value which is weighted usefulness of the length of the chain 
-;; Test Cases: Base case: 0 returns 0
-;;             Inductive Step: n -> n^2
 
 (check-expect (length_fun 0) 0)
 (check-expect (length_fun 2) 4)
@@ -639,6 +692,9 @@
              (make-list ROWS BLANK)))
 (define start-state
   (make-world-state START-BOARD RED 5 empty))
+
+(define complex-player
+  (make-world-state START-BOARD RED 5 evaluation-function-complex))
 
 (define test-board
   (list
