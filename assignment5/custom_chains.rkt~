@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname custom_chains) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname custom_chains) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 ;; Jack Gerulskis and Ankur
 
 (require 2htdp/image)
@@ -359,8 +359,7 @@
                             [(not (unique? (first end1) (first end2)))
                              empty]
                             [(and (= 0 (second end1)) (= 0 (second end2)))
-                             empty]
-                            ;(list (make-chain (list (first end1)) 1 (piece-color (first end1))))
+                             (list (make-chain (list (first end1)) 1 (piece-color (first end1))))]
                             [else
                              (list (make-chain (list (first end1) (first end2))
                                                (+ 1 (second end1) (second end2))
@@ -387,40 +386,40 @@
 
 (define board (world-state-position test-state-5))
 
-;(define (get_endpoint p dr dc len)
-;  (local [(define row (piece-row p))
-;          (define col (piece-col p))
-;          (define color (piece-color p))
-;          (define next_piece (piece-at board (+ row  dr) (+ col dc)))]
-;    (cond [(= next_piece 0)
-;           (list p len true)]
-;          [(not (= next_piece color))
-;           (list p len false)]
-;          [else
-;           (get_endpoint (make-piece (+ row  dr) 
-;                                     (+ col dc) 
-;                                     color) 
-;                         dr 
-;                         dc 
-;                         (add1 len))])))
-;
-;(define (gen_chain end1 end2)
-;  (cond [(and (false? (third end1)) (false? (third end2)))
-;         empty]
-;        [(not (unique? (first end1) (first end2) empty))
-;         empty]
-;        [(and (= 0 (second end1)) (= 0 (second end2)))
-;         (list (make-chain (list (first end1)) 1 (piece-color (first end1))))]
-;        [else
-;         (list (make-chain (list (first end1) (first end2))
-;                           (+ 1 (second end1) (second end2))
-;                           (piece-color (first end1))))]))
-;
-;(define (unique? end1 end2 loc)
-;  (not (ormap (lambda (chain)
-;                (and (member? end1 (chain-endpoints chain))
-;                     (member? end2 (chain-endpoints chain))))
-;              loc)))
+(define (get_endpoint p dr dc len)
+  (local [(define row (piece-row p))
+          (define col (piece-col p))
+          (define color (piece-color p))
+          (define next_piece (piece-at board (+ row  dr) (+ col dc)))]
+    (cond [(= next_piece 0)
+           (list p len true)]
+          [(not (= next_piece color))
+           (list p len false)]
+          [else
+           (get_endpoint (make-piece (+ row  dr) 
+                                     (+ col dc) 
+                                     color) 
+                         dr 
+                         dc 
+                         (add1 len))])))
+
+(define (gen_chain end1 end2)
+  (cond [(and (false? (third end1)) (false? (third end2)))
+         empty]
+        [(not (unique? (first end1) (first end2) empty))
+         empty]
+        [(and (= 0 (second end1)) (= 0 (second end2)))
+         (list (make-chain (list (first end1)) 1 (piece-color (first end1))))]
+        [else
+         (list (make-chain (list (first end1) (first end2))
+                           (+ 1 (second end1) (second end2))
+                           (piece-color (first end1))))]))
+
+(define (unique? end1 end2 loc)
+  (not (ormap (lambda (chain)
+                (and (member? end1 (chain-endpoints chain))
+                     (member? end2 (chain-endpoints chain))))
+              loc)))
 
 ;(define (get_chain--lop loc lop)
 ;            (cond [(empty? lop) empty]
