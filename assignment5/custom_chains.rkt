@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname custom_chains) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname custom_chains) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 ;; Jack Gerulskis and Ankur
 
 (require 2htdp/image)
@@ -48,7 +48,7 @@
 (define WINNING-MOVE 1000000000)
 (define MID-COL (ceiling (/ COLUMNS 2)))
 (define COL-MAX (sqr(- COLUMNS MID-COL)))
-(define DEFAULT-DEPTH 2)
+(define DEFAULT-DEPTH 3)
 
 ;===============================================================
 
@@ -105,9 +105,9 @@
    (list
     (list 0 0 0 0 0 0 0 0 0)
     (list 0 0 0 0 0 0 0 0 2)
-    (list 0 0 0 0 0 0 0 1 1)
+    (list 0 0 0 0 0 0 0 1 2)
     (list 0 0 0 0 0 0 0 2 1)
-    (list 0 0 0 0 0 0 0 2 1)
+    (list 0 0 0 0 0 0 2 2 1)
     (list 0 0 0 0 0 2 2 2 2)
     (list 0 0 0 0 0 0 0 0 0)
     (list 0 0 0 0 0 0 0 0 0)
@@ -154,180 +154,42 @@
 ;; Signature: state --> state
 ;; Purpose: Makes best move for computer
 
-#;
 (define (computer-moves state)
-  (local [(define moves (legal-next-moves state))]
-    (argmax evaluation-function (map (lambda (x) (make-move state x)) moves))))
+  (minmax_ok state))
 
-(define (computer-moves state) state)
-
-;(define (computer-moves state)
-;  (minmax_ok state))
-;
-;(define (minmax_bad state)
-;  (local [(define (_min sub-state depth)
-;            (cond [(= depth DEFAULT-DEPTH)
-;                   (argmin evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-;                  [else
-;                   (argmin (lambda (s) (evaluation-function (_max s (add1 depth)))) (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]))
-;          (define (_max sub-state depth)
-;            (cond [(= depth DEFAULT-DEPTH)
-;                   (argmax evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-;                  [else
-;                   (argmax (lambda (s) (evaluation-function (_min s (add1 depth)))) (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]))]
-;    (_max state 0)))
-;
-;(define (minmax_ok state)
-;  (local [(define (_min sub-state depth)
-;            (cond [(= depth DEFAULT-DEPTH)
-;                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
-;                  [(= depth 0)
-;                   (argmin
-;                    (lambda (sub-sub-state)
-;                      (_max sub-sub-state (add1 depth)))
-;                    (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-;                  [else
-;                   (apply min (map
-;                               (lambda (sub-sub-state)
-;                                 (_max sub-sub-state (add1 depth)))
-;                               (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))
-;          (define (_max sub-state depth)
-;            (cond [(= depth DEFAULT-DEPTH)
-;                   (apply max (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
-;                  [(= depth 0)
-;                   (argmax
-;                    (lambda (sub-sub-state)
-;                      (_min sub-sub-state (add1 depth)))
-;                    (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
-;                  [else
-;                   (apply max (map
-;                               (lambda (sub-sub-state)
-;                                 (_min sub-sub-state (add1 depth)))
-;                               (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
-;    (_max state 0)))
-; 
-;#;
-;(define (minmax state)
-;  (local [(define (_min sub_state depth)
-;            (cond [(= depth DEFAULT-DEPTH)
-;                   (local [(define optimal_board (argmin evaluation-function (map (lambda (x) (make-move sub_state x)) (legal-next-moves sub_state))))]
-;                     (list
-;                      (evaluation-function optimal_board)
-;                      optimal_board))]
-;                  [else
-;                   (argmin (lambda (x) (first x)) (map (lambda (x) (_max (make-move sub_state x) (add1 depth))) (legal-next-moves sub_state)))]))
-;          
-;          (define (_max sub_state depth)
-;            (cond [(= depth DEFAULT-DEPTH)
-;                   (local [(define optimal_board (argmax evaluation-function (map (lambda (x) (make-move sub_state x)) (legal-next-moves sub_state))))]
-;                     (list
-;                      (evaluation-function optimal_board)
-;                      optimal_board))]
-;                  [else
-;                   (argmax (lambda (x) (first x)) (map (lambda (x) (_min (make-move sub_state x) (add1 depth))) (legal-next-moves sub_state)))]))]
-;    (first (rest (_max state 0)))))
-;
-;;; Signature: state --> Number
-;;; Purpose: Evaluates a single boards state
-;(define (evaluation-function state)
-;  (cond [(check-win? (make-world-state
-;                      (world-state-position state)
-;                      BLACK
-;                      (world-state-settings state)
-;                      (world-state-other-info state)))
-;         WINNING-MOVE]
-;        [(check-win? (make-world-state
-;                      (world-state-position state)
-;                      RED
-;                      (world-state-settings state)
-;                      (world-state-other-info state)))
-;         (- WINNING-MOVE)]
-;        [else (+ 0 (count-chains (merge (find-all-chains (get_perimeter_pieces (world-state-position state)) state))))]))
-;
-;(sum-columns state)
-;
-;;; Signature: ListOfNumbers Number -> Number
-;;; Purpose:   Sums the values of all the pieces columns
-;(define (sum-columns st)
-;  (local [(define (sum-column state col)
-;            (cond [(empty? state) 0]
-;                  [else
-;                   (+ (count-col-worth (first state) col) (sum-column (rest state) (+ col 1)))]))]
-;    (sum-column (world-state-position st) 1)))
-;
-;;; Signature: ListOfNumbers Number -> Number
-;;; Purpose:   Finds pieces value based on its distance to the center
-;;; Notes:     Pieces towards middle are more valued. They are evaluated as
-;;;            (max-distance-from-middle)^2 - (distance-from-middle)^2
-;;; Test Cases: (Assume Board is 9x9, actual function works with all sizes)
-;(check-expect (count-col-worth (list 0 0 0 1 1 2 2) 2) 0)
-;(check-expect (count-col-worth empty 5) 0)
-;(check-expect (count-col-worth (list 0 0 0 1 1 2) 3) -12)
-;(check-expect (count-col-worth (list 0 0 0 2 2) 8) 14)
-;(define (count-col-worth lst col)
-;  (foldr (lambda (x y) (cond [(= x BLACK) (+ y (- COL-MAX (sqr (abs (- MID-COL col)))))] ; CPU piece
-;                             [(= x RED) (- y (- COL-MAX (sqr (abs (- MID-COL col)))))] ; Player piece
-;                             [else y])) ; Empty piece
-;         0 lst))
+(define (minmax_ok state)
+  (local [(define (_min sub-state depth)
+            (cond [(= depth DEFAULT-DEPTH)
+                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
+                  [(= depth 0)
+                   (argmin
+                    (lambda (sub-sub-state)
+                      (_max sub-sub-state (add1 depth)))
+                    (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
+                  [else
+                   (apply min (map
+                               (lambda (sub-sub-state)
+                                 (_max sub-sub-state (add1 depth)))
+                               (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))
+          (define (_max sub-state depth)
+            (cond [(= depth DEFAULT-DEPTH)
+                   (apply max (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
+                  [(= depth 0)
+                   (argmax
+                    (lambda (sub-sub-state)
+                      (_min sub-sub-state (add1 depth)))
+                    (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state)))]
+                  [else
+                   (apply max (map
+                               (lambda (sub-sub-state)
+                                     (_min sub-sub-state (add1 depth)))
+                               (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
+    (_max state 0)))
 
 
-
-;;; (listOf Piece) -> (listOf Chains)
-;;; Given game peices, determine the chains that each piece is a part of 
-;; !!!
-;(define (get_chains pieces board)
-;  (local [(define (get_chain--p piece loc)
-;            (local [; Piece Integer Integer Len -> list(piece int open?)
-;                    (define (get_endpoint p dr dc len)
-;                      (local [(define row (piece-row p))
-;                              (define col (piece-col p))
-;                              (define color (piece-color p))
-;                              (define next_piece (piece-at board (+ row  dr) (+ col dc)))]
-;                        (cond [(= next_piece 0)
-;                               (list p len true)]
-;                              [(not (= next_piece color))
-;                               (list p len false)]
-;                              [else
-;                               (get_endpoint (make-piece (+ row  dr) 
-;                                                         (+ col dc) 
-;                                                         color) 
-;                                             dr 
-;                                             dc 
-;                                             (add1 len))])))
-;                    
-;                    ; Piece Piece -> (listof Chain)
-;                    (define (gen_chain end1 end2)
-;                      (cond [(and (false? (third end1)) (false? (third end2)))
-;                             empty]
-;                            [(unique? end1 end2)
-;                             empty]
-;                            [(and (= 0 (second end1)) (= 0 (second end1)))
-;                             (list (make-chain (list (first end1)) 1 (piece-color (first (end1)))))]
-;                            [else
-;                             (list (make-chain (list (first end1) (first end2))
-;                                               (+ 1 (second end1) (second end2))
-;                                               (piece-color (first (end1)))))]))
-;
-;                    (define (unique? end1 end2)
-;                      (not (ormap (lambda (chain)
-;                                    (and (member? end1 (chain-endpoints chain))
-;                                         (member? end2 (chain-endpoints chain))))
-;                                  loc)))]
-;                            
-;              (append 
-;               (gen_chain (get_endpoint piece -1 0 0) (get_endpoint piece 1 0 0))
-;               (gen_chain (get_endpoint piece 0 -1 0) (get_endpoint piece 0 1 0))
-;               (gen_chain (get_endpoint piece -1 1 0) (get_endpoint piece 1 -1 0))
-;               (gen_chain (get_endpoint piece 1 1 0) (get_endpoint piece -1 -1 0)))))
-;            
-;
-;          (define (get_chain--lop loc lop)
-;            (cond [(empty? lop) empty]
-;                  [else
-;                   (get_chain--lop (append (get_chain--p (first lop) loc) loc) (rest lop))]))]
-;    (get_chain--lop empty pieces)))
-
-
+(define (evaluation-function state)
+  (local [(define board (world-state-position state))]
+    (+ 0 (count-chains (get_chains (get_perimeter_pieces board) board)))))
 
 ;; (listOf Piece) -> (listOf Chains)
 ;; Given game peices, determine the chains that each piece is a part of 
@@ -385,48 +247,6 @@
     (get_chain--lop empty pieces)))
 
 
-(define board (world-state-position test-state-5))
-
-;(define (get_endpoint p dr dc len)
-;  (local [(define row (piece-row p))
-;          (define col (piece-col p))
-;          (define color (piece-color p))
-;          (define next_piece (piece-at board (+ row  dr) (+ col dc)))]
-;    (cond [(= next_piece 0)
-;           (list p len true)]
-;          [(not (= next_piece color))
-;           (list p len false)]
-;          [else
-;           (get_endpoint (make-piece (+ row  dr) 
-;                                     (+ col dc) 
-;                                     color) 
-;                         dr 
-;                         dc 
-;                         (add1 len))])))
-;
-;(define (gen_chain end1 end2)
-;  (cond [(and (false? (third end1)) (false? (third end2)))
-;         empty]
-;        [(not (unique? (first end1) (first end2) empty))
-;         empty]
-;        [(and (= 0 (second end1)) (= 0 (second end2)))
-;         (list (make-chain (list (first end1)) 1 (piece-color (first end1))))]
-;        [else
-;         (list (make-chain (list (first end1) (first end2))
-;                           (+ 1 (second end1) (second end2))
-;                           (piece-color (first end1))))]))
-;
-;(define (unique? end1 end2 loc)
-;  (not (ormap (lambda (chain)
-;                (and (member? end1 (chain-endpoints chain))
-;                     (member? end2 (chain-endpoints chain))))
-;              loc)))
-
-;(define (get_chain--lop loc lop)
-;            (cond [(empty? lop) empty]
-;                  [else
-;                   (get_chain--lop (append (get_chain--p (first lop) loc) loc) (rest lop))]))
-
 ;; State -> list
 ;; Given a state, will return a list of the positions of all of the game pieces that are on the perimeter
 ;;     of the game board 
@@ -479,98 +299,21 @@
 ;;;            decision that not only blocks User chains, but creates new ones
 ;;;            simaltaneuously
 ;;; Test Cases: !!!
-;(define (count-chains Loc)
-;  (foldr (lambda (x y)
-;           (cond [(= (chain-color x) BLACK) (+ y (sqr (* 2 (chain-length x))))] ; CPU piece
-;                 [(= (chain-color x) RED) (- y (sqr (* 2 (chain-length x))))] ; Player piece
-;                 [else y])) ; Empty Piece
-;         0
-;         Loc))
-;
-;;; Signature: ListOfPieces Board -> ListOfChains
-;;; Purpose:   Finds all chains on board for every piece in the list
-;(define (find-all-chains Lop board)
-;  (flatten (map (lambda (x) (check-for-chain x board)) Lop))) ; flatten list to 1d
-;
-;;; Signature: Piece Board -> ListOfChains
-;;; Purpose:   Finds all chains of size length 2
-;;; Test Cases:!!!
-;(define (check-for-chain p board)
-;  (local[(define (check-chain-h adj-nodes)
-;           (cond [(empty? adj-nodes) empty]
-;                 [(= (piece-color (first adj-nodes)) (piece-color p)) (cons (make-chain p (first adj-nodes) 2 (piece-color p)) (check-chain-h (rest adj-nodes)))]
-;                 [else (check-chain-h (rest adj-nodes))]))]
-;    (check-chain-h (get-adjacent-nodes board (piece-row p) (piece-col p)))))
-;
-;;; Signature: 2DList -> 1DList
-;;; Purpose:   Flattens a 2D array
-;;; Notes:     Source: https://rosettacode.org/wiki/Flatten_a_list#Racket
-;;; Test Cases:
-;(check-expect (flatten (list (list 1 2 3) (list 1 2))) (list 1 2 3 1 2))
-;(define (flatten l)
-;  (cond [(empty? l) null]
-;        [(not (list? l)) (list l)]
-;        [else (append (flatten (first l)) (flatten (rest l)))]))
-;
-;;; Signature: ListOfChains -> ListOfChains
-;;; Purpose:   Merges chains in ListOfChains that share nodes and direction
-;;; Notes:     Code assumes a succesfully merged chain is of length 3. In
-;;;            Addition, the start and stop pieces no longer carry significance
-;;;            and they could potentially be a middle piece rather than an end piece
-;;; Test Cases:!!!
-;(define (merge Loc)
-;  (cond [(empty? Loc) empty]
-;        [else (cons (merge-h (first Loc) (rest Loc)) (merge (rest Loc)))]))
-;
-;;; Signature: Chain -> ListOfChain
-;;; Purpose:   Compares a single chain with rest of chains
-;;; Test Cases:!!!
-;(define (merge-h cur-chain Loc)
-;  (cond [(empty? Loc) cur-chain]
-;        [(and (= (find-slope cur-chain) (find-slope (first Loc))) (share-piece? cur-chain (first Loc)))
-;         (make-chain (chain-start cur-chain) (chain-stop (first Loc)) 3 (chain-color cur-chain))]
-;        [else (merge-h cur-chain (rest Loc))]))
-;
-;;; Signature: Chain Chain -> Boolean
-;;; Purpose:   Checks if two chains share a piece
-;;; Test Cases:!!!
-;(define (share-piece? ch1 ch2)
-;  (or (or (or (equal-piece? (chain-start ch1) (chain-start ch2))
-;              (equal-piece? (chain-stop ch1) (chain-stop ch2)))
-;          (equal-piece? (chain-stop ch1) (chain-start ch2)))
-;      (equal-piece? (chain-start ch1) (chain-stop ch2))))
-;
-;;; Signature: Piece Piece -> Boolean
-;;; Purpose:   Check if two pieces are equal
-;;; Test Cases:!!!
-;(define (equal-piece? p1 p2)
-;  (and (and (= (piece-row p1) (piece-row p2)) (= (piece-col p1) (piece-col p2))) (= (piece-color p1) (piece-color p2))))
-;
-;;; Signature: Chain -> Number
-;;; Purpose:   Takes in a chain and finds its slope
-;;; Test Cases:!!!
-;(define (find-slope ch)
-;  (local [(define dx (- (piece-col (chain-start ch)) (piece-col (chain-stop ch))))]
-;    (if (not (= dx 0))
-;        (/ (- (piece-row (chain-start ch)) (piece-row (chain-stop ch))) dx)
-;        -1)))
-;    
-;;; Signature: State Natural Natural -> (ListOfPieces)
-;;; Purpose:   Finds all adjacent nodes of the selected piece
-;;; Notes:     List is finite in size and will return pieces that are not on the
-;;;            board as having color of -1 (OFF-BOARD). See piece-at
-;;; Test Cases:!!!
-;(define (get-adjacent-nodes board row col)
-;  (local [(define positions (world-state-position board))]
-;    (list (make-piece (- row 1) (- col 1) (piece-at positions (- row 1) (- col 1)))
-;          (make-piece (- row 1) col (piece-at positions (- row 1) col))
-;          (make-piece (- row 1) (+ col 1) (piece-at positions (- row 1) (+ col 1)))
-;          (make-piece row (- col 1) (piece-at positions row (- col 1)))
-;          (make-piece row (+ col 1) (piece-at positions row (+ col 1)))
-;          (make-piece (+ row 1) (- col 1) (piece-at positions (+ row 1) (- col 1)))
-;          (make-piece (+ row 1) col (piece-at positions (+ row 1) col))
-;          (make-piece (+ row 1) (+ col 1) (piece-at positions (+ row 1) (+ col 1)))))) 
 
+(define (length_fun x)
+  (expt x 2))
+
+(define (count-chains Loc)
+  (foldr (lambda (x y)
+           (cond [(= (chain-length x) 4)
+                  (if (= (chain-color x) BLACK)
+                      (+ WINNING-MOVE y)
+                      (- y WINNING-MOVE))]
+                 [(= (chain-color x) BLACK) (+ y (length_fun (chain-length x)))] ; CPU piece
+                 [(= (chain-color x) RED) (- y (length_fun (chain-length x)))] ; Player piece
+                 [else y])) ; Empty Piece
+         0
+         Loc))
 ;==============================================================
 
 ;; PREVIOUSLY CREATED FUNCTIONS
