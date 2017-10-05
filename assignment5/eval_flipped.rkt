@@ -1,10 +1,12 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname eval_flipped) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-;; Jack Gerulskis and Ankur
+;; Jack Gerulskis and Ankur Gupta
 
 (require 2htdp/image)
 (require 2htdp/universe)
+
+
 
 ;; DATA DEFINITIONS
 
@@ -50,6 +52,12 @@
 (define MID-COL (ceiling (/ COLUMNS 2)))
 (define COL-MAX (sqr(- COLUMNS MID-COL)))
 (define DEFAULT-DEPTH 3)
+
+(define complex-player
+  (make-world-state START-BOARD RED 5 evaluation-function-complex))
+
+(define simple-player
+  (make-world-state START-BOARD RED 5 evaluation-function-simple))
 
 ;===============================================================
 
@@ -191,54 +199,79 @@
 ;; Purpose:    Given a world state, will determine (to depth level DEFAULT-DEPTH) what will be the optimal move for the CPU
 
 (check-expect (world-state-position (minmax_ok (make-world-state
-               (list
-                (list 0 0 0 0 0 0 1 1 1)
-                (list 0 0 0 0 0 0 0 2 2)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0))
-               2
-               5
-               evaluation-function-complex)))
-               (list
-                (list 0 0 0 0 0 2 1 1 1)
-                (list 0 0 0 0 0 0 0 2 2)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)))
+                                                (list
+                                                 (list 0 0 0 0 0 0 1 1 1)
+                                                 (list 0 0 0 0 0 0 0 2 2)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0))
+                                                2
+                                                5
+                                                evaluation-function-complex)))
+              (list
+               (list 0 0 0 0 0 2 1 1 1)
+               (list 0 0 0 0 0 0 0 2 2)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)))
 
 (check-expect (world-state-position (minmax_ok (make-world-state
-               (list
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 2)
-                (list 0 0 0 0 0 0 0 2 1)
-                (list 0 0 0 0 0 0 2 1 1)
-                (list 0 0 0 0 0 0 1 2 1)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0))
-               2
-               5
-               evaluation-function-complex)))
-               (list
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 2)
-                (list 0 0 0 0 0 0 0 2 1)
-                (list 0 0 0 0 0 0 2 1 1)
-                (list 0 0 0 0 0 2 1 2 1)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)
-                (list 0 0 0 0 0 0 0 0 0)))
+                                                (list
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 2)
+                                                 (list 0 0 0 0 0 0 0 2 1)
+                                                 (list 0 0 0 0 0 0 2 1 1)
+                                                 (list 0 0 0 0 0 0 1 2 1)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0))
+                                                2
+                                                5
+                                                evaluation-function-complex)))
+              (list
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 2)
+               (list 0 0 0 0 0 0 0 2 1)
+               (list 0 0 0 0 0 0 2 1 1)
+               (list 0 0 0 0 0 2 1 2 1)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)))
+
+(check-expect (world-state-position (minmax_ok (make-world-state
+                                                (list
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 1)
+                                                 (list 0 0 0 0 0 0 0 1 2)
+                                                 (list 0 0 0 0 0 0 1 2 2)
+                                                 (list 0 0 0 0 0 0 2 1 2)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0)
+                                                 (list 0 0 0 0 0 0 0 0 0))
+                                                2
+                                                5
+                                                evaluation-function-complex)))
+              (list
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 1)
+               (list 0 0 0 0 0 0 0 1 2)
+               (list 0 0 0 0 0 0 1 2 2)
+               (list 0 0 0 0 0 2 2 1 2)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)
+               (list 0 0 0 0 0 0 0 0 0)))
 
 (define (minmax_ok state)
   (local [(define evaluation-function (world-state-other-info state))
@@ -246,10 +279,13 @@
           ;; Signature:  ws -> ws | Number
           ;; Purpose:    Given a world state, will try to minimize the potential outcomes of the world state. If the function is called
           ;;             in the top level (depth 0), it will return a ws, otherwise it will return a minimized evaluation function value
+          ;;
+          ;; Template Used: - Gen Rec with Accumulator
+          ;;                - Mutual Recursion
           
           (define (_min sub-state depth)
             (cond [(= depth DEFAULT-DEPTH)
-                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]
+                   (apply min (map evaluation-function (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))] ;Code isn't run b/c of depth level
                   [(= depth 0)
                    (argmin
                     (lambda (sub-sub-state)
@@ -264,6 +300,9 @@
           ;; Signature:  ws -> ws | Number
           ;; Purpose:    Given a world state, will try to maximize the potential outcomes of the world state. If the function is called
           ;;             in the top level (depth 0), will return a ws, otherwise it will return a maximized evaluation function value
+          ;;
+          ;; Template Used: - Gen Rec with Accumulator
+          ;;                - Mutual Recursion
           ;;
           ;; NOTE TO THE TA: This function will have some untested code because it is future-proof in the way that the user can decide
           ;;                 to either make it min-then-max or max-then-min. All that you need to do is to replace the _min in the tramp
@@ -283,6 +322,84 @@
                                  (_min sub-sub-state (add1 depth)))
                                (map (lambda (x) (make-move sub-state x)) (legal-next-moves sub-state))))]))]
     (_min state 0)))
+
+;; Signature:  ws -> Number
+;; Purpose:    Given a world state, will return a value representing how "good" the world state is.
+;;             Higher values indicate a better board for the CPU, whilst lower values indicate a better
+;;             board for the human.
+
+(check-expect (evaluation-function-simple empty-state) 0)
+(check-expect (> (evaluation-function-simple test-state-3)
+                 (evaluation-function-simple test-state-2))
+              false)
+(check-expect (evaluation-function-simple (make-world-state
+                                           (list
+                                            (list 0 0 0 0 0 0 0 0 0)
+                                            (list 0 0 0 0 0 0 0 0 2)
+                                            (list 0 0 0 0 0 0 0 1 1)
+                                            (list 0 0 0 0 0 0 0 2 1)
+                                            (list 0 0 0 0 0 0 0 2 1)
+                                            (list 0 0 0 0 0 0 0 2 1)
+                                            (list 0 0 0 0 0 0 0 0 0)
+                                            (list 0 0 0 0 0 0 0 0 0)
+                                            (list 0 0 0 0 0 0 0 0 0))
+                                           2
+                                           5
+                                           '()))
+              WINNING-MOVE)
+(check-expect (evaluation-function-simple (make-world-state
+                                           (list
+                                            (list 0 0 0 0 0 0 0 0 0)
+                                            (list 0 0 0 0 0 0 0 0 2)
+                                            (list 0 0 0 0 0 0 0 2 1)
+                                            (list 0 0 0 0 0 0 0 2 2)
+                                            (list 0 0 0 0 0 0 0 2 1)
+                                            (list 0 0 0 0 0 0 0 2 1)
+                                            (list 0 0 0 0 0 0 0 0 0)
+                                            (list 0 0 0 0 0 0 0 0 0)
+                                            (list 0 0 0 0 0 0 0 0 0))
+                                           1
+                                           5
+                                           '()))
+              (- WINNING-MOVE))
+
+(define (evaluation-function-simple state)
+  (cond [(check-win? state)
+         (if (= (world-state-whose-turn state) BLACK)
+             WINNING-MOVE
+             (- WINNING-MOVE))]
+        [else
+         (sum-columns state)]))
+
+;; Signature: ListOfNumbers Number -> Number
+;; Purpose:   Sums the values of all the pieces columns
+;;
+;; No check-expects because the child and the parent functions are tested, and because
+;; they work, this function must work as well.
+
+(define (sum-columns st)
+  (local [(define (sum-column state col)
+            (cond [(empty? state) 0]
+                  [else
+                   (+ (count-col-worth (first state) col) (sum-column (rest state) (+ col 1)))]))]
+    (sum-column (world-state-position st) 1)))
+
+;; Signature: ListOfNumbers Number -> Number
+;; Purpose:   Finds pieces value based on its distance to the center
+;; Notes:     Pieces towards middle are more valued. They are evaluated as
+;;            (max-distance-from-middle)^2 - (distance-from-middle)^2
+;; Test Cases: (Assume Board is 9x9, actual function works with all sizes)
+
+(check-expect (count-col-worth (list 0 0 0 1 1 2 2) 2) 0)
+(check-expect (count-col-worth empty 5) 0)
+(check-expect (count-col-worth (list 0 0 0 1 1 2) 3) 12)
+(check-expect (count-col-worth (list 0 0 0 2 2) 8) -14)
+(define (count-col-worth lst col)
+  
+  (foldr (lambda (x y) (cond [(= x BLACK) (- y (- COL-MAX (sqr (abs (- MID-COL col)))))] ; CPU piece
+                             [(= x RED) (+ y (- COL-MAX (sqr (abs (- MID-COL col)))))] ; Player piece
+                             [else y])) ; Empty piece
+         0 lst))
 
 ;; Signature:  ws -> Number
 ;; Purpose:    Given a world state, will return a value representing how "good" the world state is.
@@ -316,7 +433,9 @@
                     ;; Purpose:    Given a piece, a direction for rows and a direction for columns, will the endpoint of that chain
                     ;;             in that direction. Alongside just the piece, will also return the length of the chain as well 
                     ;;             as information on whether or not that chain is open or not.
-					
+                    ;;
+                    ;; Template Rules Used: Gen Rec with accumulators
+                    
                     (define (get_endpoint p dr dc len)
                       (local [(define row (piece-row p))
                               (define col (piece-col p))
@@ -369,6 +488,8 @@
           ;; Signature:  (listof Chain) (listof Piece) -> (listof Chain)
           ;; Purpose:    Given a prexisting list of chains, and a list of perimeter pieces, will iterate through the pieces and
           ;;             add all new chains to the list of chains.
+          ;;
+          ;; Template Used: List Template
 		  
           (define (get_chain--lop loc lop)
             (cond [(empty? lop) loc]
@@ -417,7 +538,10 @@
           ;; Signature:  Position (listof Pieces) Boolean -> (listof Pieces)
           ;; Purpose:    Given a position on a board, will deteremine if the current piece is a perimeter node,
           ;;             and will return a a list of all of the current perimeter nodes.
-		  
+          ;;
+          ;; Templates Used: - Gen Rec with accumulator
+          ;;                 - Tail Recursion
+          
           (define (get_pieces pos lop terminate?)
             (local [(define row (pos-row pos))
                     (define col (pos-col pos))
@@ -742,9 +866,6 @@
              (make-list ROWS BLANK)))
 (define start-state
   (make-world-state START-BOARD RED 5 empty))
-
-(define complex-player
-  (make-world-state START-BOARD RED 5 evaluation-function-complex))
 
 (define test-board
   (list
