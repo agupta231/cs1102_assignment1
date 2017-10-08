@@ -68,8 +68,6 @@
 
 ;;Some functions for check-expects
 
-
-
 (edge n0 n1)
 (edge n1 n0)
 (edge n1 n2)
@@ -83,7 +81,7 @@
 (define-syntax ->?
   (syntax-rules ()
     [(->? n0 n1)
-     (if (empty? (filter (lambda (x) (equal? x (quote n1))) (node-edges n0)))
+     (if (empty? (filter (lambda (x) (equal? x (node-name n1))) (node-edges n0)))
          false
          true)]))
 
@@ -98,7 +96,56 @@
     [(<->? n0 n1)
      (and (->? n0 n1) (->? n1 n0))]))
 
+;; Graph Template
+#;
+(define (fn-for-graph node)
+  (local [(define (fn-for-node n todo visited)
+            (if (member n visited)
+                (fn-for-lon todo visited)
+                (fn-for-lon (append (node-edges (eval n)))
+                            (cons n visited))))
+          (define (fn-for-lon todo visited)
+            (cond [(empty? todo) (...)]
+                  [else
+                   (fn-for-node (first todo)
+                                (rest todo)
+                                visited)]))]))
+
 ;; Macro 7
+(define (-->? parent child)
+  (local [(define (fn-for-node n todo visited)
+            (begin (print "Node: ")
+                   (println (eval n))
+
+                   (print "Child: ")
+                   (println child)
+
+                   (print "Eval: ")
+                   (println (->? (eval n) child))
+
+                   (print "TODO: ")
+                   (println todo)
+
+                   (print "VISITED: ")
+                   (println visited)
+                   (println "")
+                   
+                   (cond [(->? (eval n) child) #t]
+                         [(member (eval n) visited)
+                          (fn-for-lon todo visited)]
+                         [else
+                          (fn-for-lon (append (node-edges (eval n)) todo)
+                                      (cons n visited))])))
+          (define (fn-for-lon todo visited)
+            (cond [(empty? todo) #f]
+                  [else
+                   (fn-for-node (first todo)
+                                (rest todo)
+                                visited)]))]
+    (fn-for-node parent empty empty)))
+
+;; Macro 7
+#;
 (define (-->? checknodemaster check)
   (local [(define base checknodemaster)
           (define (helper checknode acclst)
@@ -109,7 +156,48 @@
               [else (if (empty? (filter (lambda (x) (not (false? x))) (map (lambda (y) (helper y (cons y acclst))) (node-edges (eval checknode)))))
                         false
                         true)]))] 
-         (helper checknodemaster (list))))  
+    (helper checknodemaster (list))))  
 
+(new graph g10)
+(new graph g11)
+(vertex n10 in g10)
+(vertex n11 in g10)
+(vertex n12 in g10)
+(vertex n13 in g11)
+(edges n10 -> n11 <-> n12 -> n10 -> n13)
+
+
+;; Macro 8
+(define (all-nodes graph)
+  (local [(define (fn-for-node n todo visited)
+            (begin (print "CURRENT NODE: ")
+                   (println n)
+                   
+                   (print "TODO: ")
+                   (println todo)
+
+                   (print "VISITED: ")
+                   (println visited)
+
+                   (println "")
+                   
+                   (if (member n visited)
+                       (begin (print "here: ")
+                              (print n)
+                              (println "")
+                       (fn-for-lon todo visited))
+                       (fn-for-lon (append (node-edges (eval n)) todo)
+                                   (add-unique n visited)))))
+          (define (fn-for-lon todo visited)
+            (cond [(empty? todo) (begin (print "here2: ")
+                                        (print todo)
+                                        (println "")
+                                        visited)]
+                  [else
+                   (fn-for-node (first todo)
+                                (rest todo)
+                                visited)]))]
+    
+    (fn-for-lon (graph-vertices (eval graph)) empty)))
 
 (test)
