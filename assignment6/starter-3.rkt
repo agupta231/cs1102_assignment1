@@ -1,4 +1,5 @@
 #lang racket
+(require test-engine/racket-tests)
 
 ;; #:transparent makes structures display a bit nicer
 (define-struct graph (name vertices) #:transparent)
@@ -21,6 +22,7 @@
             (set! str (make-graph (quote str)  '())))]))
 
 (new graph g0)
+(new graph g1)
 
 
 ;;Macro 2
@@ -34,6 +36,8 @@
 (vertex n0 in g0)
 (vertex n1 in g0)
 (vertex n2 in g0)
+(vertex n3 in g1)
+
 
 ;; Macro 3
 (define-syntax edge
@@ -41,6 +45,7 @@
     [(edge n0 n1)
      (begin (set! n0 (make-node (quote n0) (add-unique (quote n1) (node-edges n0)))))]))
 
+;;Macro 4
 
 (define-syntax edges
   (syntax-rules (-> <->)
@@ -61,13 +66,50 @@
      (begin (edges n0 <-> n1)
             (edges n1 <-> n2 ...))]))
 
-;; Macro 4 Non-Recursive
-#;
-(define-syntax edges
-  (syntax-rules (-> <->)
-    [(edges n0 -> n1 <-> n2 -> n3)
-     (begin (edge n0 n1)
-            (edge n1 n2)
-            (edge n1 n2)
-            (edge n2 n1)
-            (edge n2 n3))]))
+;;Some functions for check-expects
+
+
+
+(edge n0 n1)
+(edge n1 n0)
+(edge n1 n2)
+
+;; Macro 5
+(check-expect (->? n0 n1) true)
+(check-expect (->? n1 n2) true)
+(check-expect (->? n2 n1) false)
+(check-expect (->? n0 n2) false)
+
+(define-syntax ->?
+  (syntax-rules ()
+    [(->? n0 n1)
+     (if (empty? (filter (lambda (x) (equal? x (quote n1))) (node-edges n0)))
+         false
+         true)]))
+
+;; Macro 6
+(check-expect (<->? n0 n1) true)
+(check-expect (<->? n1 n2) false)
+(check-expect (<->? n2 n1) false)
+(check-expect (<->? n0 n2) false)
+
+(define-syntax <->?
+  (syntax-rules ()
+    [(<->? n0 n1)
+     (and (->? n0 n1) (->? n1 n0))]))
+
+;; Macro 7
+(define (-->? checknodemaster check)
+  (local [(define base checknodemaster)
+          (define (helper checknode acclst)
+            (cond
+              [(->? (eval checknode) check) true]
+              [(empty? (node-edges (eval checknode))) false]
+              [(not (empty? (filter (lambda (x) (equal? x checknode)) acclst))) false]
+              [else (if (empty? (filter (lambda (x) (not (false? x))) (map (lambda (y) (helper y (cons y acclst))) (node-edges (eval checknode)))))
+                        false
+                        true)]))] 
+         (helper checknodemaster (list))))  
+
+
+(test)
