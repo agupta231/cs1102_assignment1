@@ -1,5 +1,4 @@
 #lang racket
-
 (require test-engine/racket-tests)
 
 ;; #:transparent makes structures display a bit nicer
@@ -167,6 +166,7 @@
 (vertex n13 in g11)
 (edges n10 -> n11 <-> n12 -> n10 -> n13)
 
+
 ;; Macro 8
 (define (all-nodes graph)
   (local [(define (fn-for-node n todo visited)
@@ -199,7 +199,5 @@
                                 visited)]))]
     
     (fn-for-lon (graph-vertices (eval graph)) empty)))
-
-(all-nodes g0)
 
 (test)

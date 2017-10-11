@@ -2,6 +2,8 @@
 
 (require test-engine/racket-tests)
 
+(define ns (make-base-namespace))
+
 ;; #:transparent makes structures display a bit nicer
 (define-struct graph (name vertices) #:transparent)
 (define-struct node (name edges) #:transparent)
